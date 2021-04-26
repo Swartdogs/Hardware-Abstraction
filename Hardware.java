@@ -145,7 +145,7 @@ public final class Hardware
 
                 private VelocitySensor _velocitySensor = new VelocitySensor()
                 {
-                    public double get()
+                    public double getRawVelocity()
                     {
                         return motor.getSensorCollection().getIntegratedSensorVelocity();
                     }

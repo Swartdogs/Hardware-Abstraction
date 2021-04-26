@@ -1,5 +1,7 @@
 package frc.robot.abstraction;
 
+import java.util.function.DoubleUnaryOperator;
+
 public abstract class VelocitySensor
 {
     private DoubleUnaryOperator _scalingFunction = DoubleUnaryOperator.identity();

@@ -7,6 +7,23 @@ public abstract class Solenoid
     public abstract void         extend();
     public abstract void         retract();
     public abstract ExtendState  getExtendState();
+    
+    public void setExtendState(ExtendState state)
+    {
+        switch (state)
+        {
+            case Extended:
+                extend();
+                break;
+
+            case Retracted:
+                retract();
+                break;
+
+            default:
+                break;
+        }
+    }
 
     public static Solenoid compose(Solenoid... solenoids)
     {

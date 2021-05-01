@@ -9,4 +9,10 @@ public abstract class Switch
     public abstract void  whenActivated(Command command);
     public abstract void  whileActive(Command command);
     public abstract void  cancelWhenActivated(Command command);
+
+    public boolean transitionedTo(State state)
+    {
+        return get() == state;
+    }
+
 }

@@ -64,7 +64,7 @@ public final class Hardware
                         _buttons[buttonNum - 1]  = new JoystickButton(_joystick, buttonNum);
                         _switches[buttonNum - 1] = new Switch()
                         {
-                            public State getState()
+                            public State get()
                             {
                                 return _joystick.getRawButton(buttonNum) ? State.On : State.Off;
                             }
@@ -132,7 +132,7 @@ public final class Hardware
 
                 private PositionSensor _positionSensor = new PositionSensor()
                 {
-                    public double getRawPosition()
+                    public double getRaw()
                     {
                         return motor.getSensorCollection().getIntegratedSensorPosition();
                     }
@@ -145,7 +145,7 @@ public final class Hardware
 
                 private VelocitySensor _velocitySensor = new VelocitySensor()
                 {
-                    public double getRawVelocity()
+                    public double getRaw()
                     {
                         return motor.getSensorCollection().getIntegratedSensorVelocity();
                     }
@@ -183,7 +183,7 @@ public final class Hardware
 
             return new PositionSensor()
             {
-                public double getRawPosition()
+                public double getRaw()
                 {
                     return -gyro.getRotation2d().getDegrees();
                 }
@@ -201,7 +201,7 @@ public final class Hardware
 
             return new PositionSensor()
             {
-                public double getRawPosition()
+                public double getRaw()
                 {
                     return imu.getAngle();
                 }
@@ -219,7 +219,7 @@ public final class Hardware
 
             return new PositionSensor()
             {
-                public double getRawPosition()
+                public double getRaw()
                 {
                     return -(potentiometer.get() - 360);
                 }

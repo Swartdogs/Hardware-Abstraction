@@ -6,11 +6,11 @@ public abstract class VelocitySensor
 {
     private DoubleUnaryOperator _scalingFunction = DoubleUnaryOperator.identity();
 
-    public abstract double getRawVelocity();
+    public abstract double getRaw();
 
     public double get()
     {
-        return _scalingFunction.applyAsDouble(getRawVelocity());
+        return _scalingFunction.applyAsDouble(getRaw());
     }
 
     public void setScalingFunction(DoubleUnaryOperator scalingFunction)

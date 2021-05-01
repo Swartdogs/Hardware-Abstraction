@@ -6,9 +6,9 @@ public abstract class Solenoid
 {
     public abstract void         extend();
     public abstract void         retract();
-    public abstract ExtendState  getExtendState();
+    public abstract ExtendState  get();
     
-    public void setExtendState(ExtendState state)
+    public void set(ExtendState state)
     {
         switch (state)
         {
@@ -51,7 +51,7 @@ public abstract class Solenoid
                 }
             }
 
-            public ExtendState getExtendState()
+            public ExtendState get()
             {
                 return _state;
             }
@@ -72,9 +72,9 @@ public abstract class Solenoid
                 solenoid.extend();
             }
 
-            public ExtendState getExtendState()
+            public ExtendState get()
             {
-                return solenoid.getExtendState() == ExtendState.Extended ? ExtendState.Retracted : ExtendState.Extended;
+                return solenoid.get() == ExtendState.Extended ? ExtendState.Retracted : ExtendState.Extended;
             }
         };
     }

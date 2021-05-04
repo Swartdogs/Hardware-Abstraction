@@ -1,5 +1,7 @@
 package frc.robot.abstraction;
 
+import java.util.ArrayList;
+
 import com.analog.adis16448.frc.ADIS16448_IMU;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -13,11 +15,38 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.abstraction.Enumerations.State;
 
 @SuppressWarnings("resource")
-public final class Hardware
+public final class Hardware extends SwartdogSubsystem
 {
-    private Hardware()
+    private ArrayList<Abstraction> _hardware;
+
+    public Hardware(Abstraction... hardware)
     {
-        // do nothing
+        _hardware = new ArrayList<Abstraction>();
+
+        addHardware(hardware);
+    }
+
+    @Override
+    public void periodic()
+    {
+        cacheAll();
+    }
+
+    public void addHardware(Abstraction... hardware)
+    {
+        for (Abstraction abstraction : hardware)
+        {
+            abstraction.cache();
+            _hardware.add(abstraction);
+        }
+    }
+
+    private void cacheAll()
+    {
+        for (Abstraction abstraction : _hardware)
+        {
+            abstraction.cache();
+        }
     }
 
     public static class Controls
@@ -31,22 +60,26 @@ public final class Hardware
                 private Switch[] _switches = new Switch[12];
                 private JoystickButton[] _buttons = new JoystickButton[12];
 
-                public double getX()
+                @Override
+                protected double getRawX()
                 {
                     return _joystick.getX();
                 }
 
-                public double getY()
+                @Override
+                protected double getRawY()
                 {
                     return -_joystick.getY();
                 }
 
-                public double getZ()
+                @Override
+                protected double getRawZ()
                 {
                     return _joystick.getZ();
                 }
 
-                public double getThrottle()
+                @Override
+                protected double getRawThrottle()
                 {
                     return _joystick.getRawAxis(3);
                 }
@@ -64,21 +97,25 @@ public final class Hardware
                         _buttons[buttonNum - 1]  = new JoystickButton(_joystick, buttonNum);
                         _switches[buttonNum - 1] = new Switch()
                         {
-                            public State get()
+                            @Override
+                            protected State getRaw()
                             {
                                 return _joystick.getRawButton(buttonNum) ? State.On : State.Off;
                             }
 
+                            @Override
                             public void whenActivated(Command command)
                             {
                                 _buttons[buttonNum - 1].whenPressed(command);
                             }
 
+                            @Override
                             public void whileActive(Command command)
                             {
                                 _buttons[buttonNum - 1].whileHeld(command);
                             }
 
+                            @Override
                             public void cancelWhenActivated(Command command)
                             {
                                 _buttons[buttonNum - 1].cancelWhenPressed(command);
@@ -87,6 +124,12 @@ public final class Hardware
                     }
 
                     return _switches[buttonNum - 1];
+                }
+
+                @Override
+                public int getButtonCount()
+                {
+                    return _buttons.length;
                 }
             };
         }
@@ -100,21 +143,25 @@ public final class Hardware
 
             return new Motor()
             {
-                public double get()
+                @Override
+                protected double getRaw()
                 {
                     return motor.get();
                 }
 
+                @Override
                 public PositionSensor getPositionSensor()
                 {
                     return null;
                 }
 
+                @Override
                 public VelocitySensor getVelocitySensor()
                 {
                     return null;
                 }
 
+                @Override
                 public void set(double speed)
                 {
                     motor.set(speed);
@@ -132,11 +179,13 @@ public final class Hardware
 
                 private PositionSensor _positionSensor = new PositionSensor()
                 {
-                    public double getRaw()
+                    @Override
+                    protected double getRaw()
                     {
                         return motor.getSensorCollection().getIntegratedSensorPosition();
                     }
 
+                    @Override
                     public void reset()
                     {
                         motor.getSensorCollection().setIntegratedSensorPosition(0, 0);
@@ -145,27 +194,32 @@ public final class Hardware
 
                 private VelocitySensor _velocitySensor = new VelocitySensor()
                 {
-                    public double getRaw()
+                    @Override
+                    protected double getRaw()
                     {
                         return motor.getSensorCollection().getIntegratedSensorVelocity();
                     }
                 };
 
-                public double get()
+                @Override
+                protected double getRaw()
                 {
                     return _speed;
                 }
 
+                @Override
                 public PositionSensor getPositionSensor()
                 {
                     return _positionSensor;
                 }
 
+                @Override
                 public VelocitySensor getVelocitySensor()
                 {
                     return _velocitySensor;
                 }
 
+                @Override
                 public void set(double speed)
                 {
                     _speed = speed;
@@ -183,11 +237,13 @@ public final class Hardware
 
             return new PositionSensor()
             {
-                public double getRaw()
+                @Override
+                protected double getRaw()
                 {
                     return -gyro.getRotation2d().getDegrees();
                 }
 
+                @Override
                 public void reset()
                 {
                     gyro.reset();
@@ -201,11 +257,13 @@ public final class Hardware
 
             return new PositionSensor()
             {
-                public double getRaw()
+                @Override
+                protected double getRaw()
                 {
                     return imu.getAngle();
                 }
 
+                @Override
                 public void reset()
                 {
                     imu.reset();
@@ -219,11 +277,13 @@ public final class Hardware
 
             return new PositionSensor()
             {
-                public double getRaw()
+                @Override
+                protected double getRaw()
                 {
                     return -(potentiometer.get() - 360);
                 }
 
+                @Override
                 public void reset()
                 {
                     return;

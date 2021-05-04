@@ -1,7 +1,20 @@
 package frc.robot.abstraction;
 
-public abstract class NetworkTableDouble 
+public abstract class NetworkTableDouble implements Abstraction
 {
-    public abstract void   set(double value);
-    public abstract double get();
+    private double _value;
+
+    protected abstract double getRaw();
+
+    public abstract void set(double value);
+    
+    public double get()
+    {
+        return _value;
+    }
+
+    public void cache()
+    {
+        _value = getRaw();
+    }
 }

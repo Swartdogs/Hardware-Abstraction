@@ -1,31 +1,48 @@
 package frc.robot.abstraction;
 
-public abstract class Motor
+public abstract class Motor implements Abstraction
 {
-    public abstract double         get();
+    private double _speed;
+
+    protected abstract double getRaw();
+
     public abstract PositionSensor getPositionSensor();
     public abstract VelocitySensor getVelocitySensor();
     public abstract void           set(double speed);
+
+    public double get()
+    {
+        return _speed;
+    }
+
+    public void cache()
+    {
+        _speed = getRaw();
+    }
 
     public static Motor invert(Motor toInvert)
     {
         return new Motor()
         {
-            public double get()
+            @Override
+            protected double getRaw()
             {
-                return -toInvert.get();
+                return -toInvert.getRaw();
             }
 
+            @Override
             public PositionSensor getPositionSensor()
             {
                 return toInvert.getPositionSensor();
             }
 
+            @Override
             public VelocitySensor getVelocitySensor()
             {
                 return toInvert.getVelocitySensor();
             }
 
+            @Override
             public void set(double speed)
             {
                 toInvert.set(-speed);
@@ -37,18 +54,20 @@ public abstract class Motor
     {
         return new Motor()
         {
-            public double get()
+            @Override
+            protected double getRaw()
             {
                 double speed = 0;
 
                 if (motors.length > 0)
                 {
-                    speed = motors[0].get();
+                    speed = motors[0].getRaw();
                 }
 
                 return speed;
             }
 
+            @Override
             public PositionSensor getPositionSensor()
             {
                 PositionSensor sensor = null;
@@ -61,6 +80,7 @@ public abstract class Motor
                 return sensor;
             }
 
+            @Override
             public VelocitySensor getVelocitySensor()
             {
                 VelocitySensor sensor = null;
@@ -73,6 +93,7 @@ public abstract class Motor
                 return sensor;
             }
 
+            @Override
             public void set(double speed)
             {
                 for (Motor m : motors)

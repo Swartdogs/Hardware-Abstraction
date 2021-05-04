@@ -1,7 +1,20 @@
 package frc.robot.abstraction;
 
-public abstract class NetworkTableBoolean 
+public abstract class NetworkTableBoolean implements Abstraction
 {
-    public abstract void    set(boolean value);
-    public abstract boolean get();
+    private boolean _value;
+
+    protected abstract boolean getRaw();
+
+    public abstract void set(boolean value);
+
+    public boolean get()
+    {
+        return _value;
+    }
+
+    public void cache()
+    {
+        _value = getRaw();
+    }
 }

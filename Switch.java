@@ -1,6 +1,5 @@
 package frc.robot.abstraction;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.abstraction.Enumerations.State;
 
 public abstract class Switch implements Abstraction
@@ -10,9 +9,19 @@ public abstract class Switch implements Abstraction
 
     protected abstract State getRaw();
 
-    public abstract void whenActivated(Command command);
-    public abstract void whileActive(Command command);
-    public abstract void cancelWhenActivated(Command command);
+    public abstract void whenActivated(SwartdogCommand command, boolean interruptible);
+    public abstract void whileActive(SwartdogCommand command, boolean interruptible);
+    public abstract void cancelWhenActivated(SwartdogCommand command);
+
+    public void whenActivated(SwartdogCommand command)
+    {
+        whenActivated(command, true);
+    }
+
+    public void whileActive(SwartdogCommand command)
+    {
+        whileActive(command, true);
+    }
 
     public State get()
     {

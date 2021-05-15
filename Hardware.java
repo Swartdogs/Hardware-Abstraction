@@ -10,7 +10,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.abstraction.Enumerations.State;
 
@@ -104,19 +103,19 @@ public final class Hardware extends SwartdogSubsystem
                             }
 
                             @Override
-                            public void whenActivated(Command command)
+                            public void whenActivated(SwartdogCommand command, boolean interruptible)
                             {
-                                _buttons[buttonNum - 1].whenPressed(command);
+                                _buttons[buttonNum - 1].whenPressed(command, interruptible);
                             }
 
                             @Override
-                            public void whileActive(Command command)
+                            public void whileActive(SwartdogCommand command, boolean interruptible)
                             {
-                                _buttons[buttonNum - 1].whileHeld(command);
+                                _buttons[buttonNum - 1].whileHeld(command, interruptible);
                             }
 
                             @Override
-                            public void cancelWhenActivated(Command command)
+                            public void cancelWhenActivated(SwartdogCommand command)
                             {
                                 _buttons[buttonNum - 1].cancelWhenPressed(command);
                             }

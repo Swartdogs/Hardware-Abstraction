@@ -89,7 +89,7 @@ public abstract class Joystick implements Abstraction
     {
         _x        = applyDeadband(getRawX(),        _xDeadband,        _squareX);
         _y        = applyDeadband(getRawY(),        _yDeadband,        _squareY);
-        _z        = applyDeadband(getRawY(),        _zDeadband,        _squareZ);
+        _z        = applyDeadband(getRawZ(),        _zDeadband,        _squareZ);
         _throttle = applyDeadband(getRawThrottle(), _throttleDeadband, _squareThrottle);
     }
 

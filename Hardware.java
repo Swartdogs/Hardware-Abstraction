@@ -1,6 +1,9 @@
 package frc.robot.abstraction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.function.Supplier;
 
 import com.analog.adis16448.frc.ADIS16448_IMU;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -10,6 +13,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.abstraction.Enumerations.State;
 
@@ -288,6 +292,87 @@ public final class Hardware extends SwartdogSubsystem
                     return;
                 }
             };
+        }
+
+        public static Switch genericSwitch(Supplier<State> stateSupplier)
+        {
+            return new HardwareSwitch()
+            {
+                @Override
+                protected State getRaw() 
+                {
+                    return stateSupplier.get();
+                }
+            };
+        }
+    }
+
+    private static abstract class HardwareSwitch extends Switch
+    {
+        private HashSet<SwartdogCommand> _whenActivatedCommands = new HashSet<SwartdogCommand>();
+        private HashSet<SwartdogCommand> _whileActiveCommands   = new HashSet<SwartdogCommand>();
+        private HashSet<SwartdogCommand> _cancelCommands        = new HashSet<SwartdogCommand>();
+
+        private HashMap<SwartdogCommand, Boolean> _interruptibleMap = new HashMap<SwartdogCommand, Boolean>();
+
+        @Override
+        public void whenActivated(SwartdogCommand command, boolean interruptible) 
+        {
+            _whenActivatedCommands.add(command);
+            _interruptibleMap.put(command, interruptible);
+        }
+
+        @Override
+        public void whileActive(SwartdogCommand command, boolean interruptible) 
+        {
+            _whileActiveCommands.add(command);
+            _interruptibleMap.put(command, interruptible);
+        }
+
+        @Override
+        public void cancelWhenActivated(SwartdogCommand command) 
+        {
+            _cancelCommands.add(command);
+        }
+
+        @Override
+        public void cache()
+        {
+            super.cache();
+
+            CommandScheduler scheduler = CommandScheduler.getInstance();
+
+            if (transitionedTo(State.On))
+            {
+                for (SwartdogCommand command : _whenActivatedCommands)
+                {
+                    scheduler.schedule(_interruptibleMap.get(command), command);
+                }
+
+                for (SwartdogCommand command : _whileActiveCommands)
+                {
+                    scheduler.schedule(_interruptibleMap.get(command), command);
+                }
+            }
+
+            else if (transitionedTo(State.Off))
+            {
+                for (SwartdogCommand command : _whileActiveCommands)
+                {
+                    if (scheduler.isScheduled(command))
+                    {
+                        scheduler.cancel(command);
+                    }
+                }
+
+                for (SwartdogCommand command : _cancelCommands)
+                {
+                    if (scheduler.isScheduled(command))
+                    {
+                        scheduler.cancel(command);
+                    }
+                }
+            }
         }
     }
 }

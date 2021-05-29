@@ -8,13 +8,22 @@ import java.util.function.Supplier;
 import com.analog.adis16448.frc.ADIS16448_IMU;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
+import frc.robot.abstraction.Enumerations.ExtendState;
 import frc.robot.abstraction.Enumerations.State;
 
 @SuppressWarnings("resource")
@@ -134,18 +143,55 @@ public final class Hardware extends SwartdogSubsystem
                 {
                     return _buttons.length;
                 }
+
+                @Override
+                public void cache()
+                {
+                    super.cache();
+
+                    for (Switch button : _switches)
+                    {
+                        if (button != null)
+                        {
+                            button.cache();
+                        }
+                    }                    
+                }
             };
         }
     }
 
-    public static class Motors
+    public static class Actuators
     {
         public static Motor neo(int canId)
         {
             CANSparkMax motor = new CANSparkMax(canId, MotorType.kBrushless);
+            CANEncoder encoder = motor.getEncoder();
 
             return new Motor()
             {
+                private PositionSensor _positionSensor = new PositionSensor()
+                {
+
+                    @Override
+                    protected double getRaw() {
+                        return encoder.getPosition();
+                    }
+
+                    @Override
+                    public void reset() {
+                        encoder.setPosition(0);
+                    }
+                    
+                };
+                private VelocitySensor _velocitySensor = new VelocitySensor()
+                {
+                    @Override
+                    protected double getRaw() {
+                        return encoder.getVelocity();
+                    }
+                    
+                };
                 @Override
                 protected double getRaw()
                 {
@@ -155,13 +201,13 @@ public final class Hardware extends SwartdogSubsystem
                 @Override
                 public PositionSensor getPositionSensor()
                 {
-                    return null;
+                    return _positionSensor;
                 }
 
                 @Override
                 public VelocitySensor getVelocitySensor()
                 {
-                    return null;
+                    return _velocitySensor;
                 }
 
                 @Override
@@ -230,6 +276,102 @@ public final class Hardware extends SwartdogSubsystem
                 }
             };
         }
+
+        public static Motor victorSP(int port)
+        {
+            VictorSP motor = new VictorSP(port);
+
+
+            return new Motor(){
+
+                @Override
+                protected double getRaw() {
+                    return motor.get();
+                }
+
+                @Override
+                public PositionSensor getPositionSensor() {
+                    return null;
+                }
+
+                @Override
+                public VelocitySensor getVelocitySensor() {
+                    return null;
+                }
+
+                @Override
+                public void set(double speed) {
+                    motor.set(speed);
+                }
+                
+            };
+        }
+
+        public static Motor victorSPX(int canId)
+        {
+            WPI_VictorSPX motor = new WPI_VictorSPX(canId);
+
+            return new Motor()
+            {
+
+				@Override
+				protected double getRaw() {
+					// TODO Auto-generated method stub
+					return motor.get();
+				}
+
+				@Override
+				public PositionSensor getPositionSensor() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public VelocitySensor getVelocitySensor() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public void set(double speed) {
+					// TODO Auto-generated method stub
+					motor.set(speed);
+				}
+                
+            };
+        }
+
+        public static Solenoid solenoid(int port)
+        {
+            edu.wpi.first.wpilibj.Solenoid solenoid = new edu.wpi.first.wpilibj.Solenoid(port);
+
+            return new Solenoid()
+            {
+                private ExtendState _state = ExtendState.Retracted;
+
+                @Override
+                protected ExtendState getRaw()
+                {
+                    return _state;
+                }
+
+                @Override
+                public void extend()
+                {
+                    solenoid.set(true);
+                    _state = ExtendState.Extended;
+                    cache();
+                }
+
+                @Override
+                public void retract()
+                {
+                    solenoid.set(false);
+                    _state = ExtendState.Retracted;
+                    cache();
+                }
+            };
+        }
     }
 
     public static class Sensors
@@ -294,20 +436,102 @@ public final class Hardware extends SwartdogSubsystem
             };
         }
 
+        public static PositionSensor analogInput(int port)
+        {
+            AnalogInput analogInput = new AnalogInput(port);
+
+            analogInput.setAverageBits(2);
+            analogInput.setOversampleBits(0);
+
+            return new PositionSensor()
+            {
+                private double _zero = 0;
+
+                @Override
+                protected double getRaw()
+                {
+                    return analogInput.getAverageValue() - _zero;
+                }
+
+                @Override
+                public void reset()
+                {
+                    _zero = analogInput.getAverageValue();
+                }
+            };
+        }
+
         public static Switch genericSwitch(Supplier<State> stateSupplier)
         {
             return new HardwareSwitch()
             {
                 @Override
-                protected State getRaw() 
+                protected State getRaw()
                 {
                     return stateSupplier.get();
                 }
             };
         }
+
+        public static Switch lightSensor(int port)
+        {
+            DigitalInput lightSensor = new DigitalInput(port);
+
+            return new HardwareSwitch()
+            {
+                @Override
+                protected State getRaw()
+                {
+                    return lightSensor.get() ? State.Off : State.On;
+                }
+            };
+        }
     }
 
-    private static abstract class HardwareSwitch extends Switch
+    public static final class NetworkTable
+    {
+        public static NetworkTableDouble networkTableDouble(String tableName, String varName)
+        {
+            NetworkTableEntry entry = NetworkTableInstance.getDefault().getTable(tableName).getEntry(varName);
+
+            return new NetworkTableDouble()
+            {
+				@Override
+                protected double getRaw()
+                {
+					return entry.getDouble(0);
+				}
+
+				@Override
+                public void set(double value)
+                {
+					entry.setDouble(value);
+				}
+            };
+        }
+
+        public static NetworkTableBoolean networkTableBoolean(String tableName, String varName)
+        {
+            NetworkTableEntry entry = NetworkTableInstance.getDefault().getTable(tableName).getEntry(varName);
+
+            return new NetworkTableBoolean()
+            {
+                @Override
+                protected boolean getRaw()
+                {
+                    return entry.getBoolean(false);
+                }
+
+                @Override
+                public void set(boolean value)
+                {
+                    entry.setBoolean(value);
+                }
+            };
+        }
+    }
+
+    public static abstract class HardwareSwitch extends Switch
     {
         private HashSet<SwartdogCommand> _whenActivatedCommands = new HashSet<SwartdogCommand>();
         private HashSet<SwartdogCommand> _whileActiveCommands   = new HashSet<SwartdogCommand>();
@@ -316,21 +540,21 @@ public final class Hardware extends SwartdogSubsystem
         private HashMap<SwartdogCommand, Boolean> _interruptibleMap = new HashMap<SwartdogCommand, Boolean>();
 
         @Override
-        public void whenActivated(SwartdogCommand command, boolean interruptible) 
+        public void whenActivated(SwartdogCommand command, boolean interruptible)
         {
             _whenActivatedCommands.add(command);
             _interruptibleMap.put(command, interruptible);
         }
 
         @Override
-        public void whileActive(SwartdogCommand command, boolean interruptible) 
+        public void whileActive(SwartdogCommand command, boolean interruptible)
         {
             _whileActiveCommands.add(command);
             _interruptibleMap.put(command, interruptible);
         }
 
         @Override
-        public void cancelWhenActivated(SwartdogCommand command) 
+        public void cancelWhenActivated(SwartdogCommand command)
         {
             _cancelCommands.add(command);
         }

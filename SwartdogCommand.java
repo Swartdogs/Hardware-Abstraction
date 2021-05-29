@@ -24,14 +24,13 @@ public abstract class SwartdogCommand implements Command
         return _requirements;
     }
 
-    public static SwartdogCommand runnable(Runnable runnable)
+    public static SwartdogCommand run(Runnable runnable)
     {
         return new SwartdogCommand()
         {
             @Override
             public void initialize()
             {
-                System.out.println("Command run");
                 runnable.run();
             }
 

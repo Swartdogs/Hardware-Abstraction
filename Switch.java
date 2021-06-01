@@ -1,5 +1,6 @@
 package frc.robot.abstraction;
 
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.abstraction.Enumerations.State;
 
 public abstract class Switch implements Abstraction
@@ -41,6 +42,14 @@ public abstract class Switch implements Abstraction
         if (_previousState == null)
         {
             _previousState = _currentState;
+        }
+    }
+
+    protected void schedule(SwartdogCommand command)
+    {
+        if (SwartdogSubsystem.REGISTER_SUBSYSTEMS)
+        {
+            CommandScheduler.getInstance().schedule(command);
         }
     }
 }

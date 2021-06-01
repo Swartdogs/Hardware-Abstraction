@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -165,8 +166,8 @@ public final class Hardware extends SwartdogSubsystem
     {
         public static Motor neo(int canId)
         {
-            CANSparkMax motor = new CANSparkMax(canId, MotorType.kBrushless);
-            CANEncoder encoder = motor.getEncoder();
+            CANSparkMax motor   = new CANSparkMax(canId, MotorType.kBrushless);
+            CANEncoder  encoder = motor.getEncoder();
 
             return new Motor()
             {
@@ -214,6 +215,51 @@ public final class Hardware extends SwartdogSubsystem
                 public void set(double speed)
                 {
                     motor.set(speed);
+                }
+            };
+        }
+
+        public static Motor neoFlywheel(int canId, double maxMotorRPM)
+        {
+            CANSparkMax motor   = new CANSparkMax(canId, MotorType.kBrushless);
+            CANEncoder  encoder = motor.getEncoder();
+
+            return new Motor()
+            {
+                private double _setpoint = 0;
+
+                private VelocitySensor _velocitySensor = new VelocitySensor()
+                {
+                    @Override 
+                    protected double getRaw()
+                    {
+                        return encoder.getVelocity();
+                    }
+                };
+
+                @Override
+                protected double getRaw()
+                {
+                    return _setpoint;
+                }
+
+                @Override
+                public PositionSensor getPositionSensor()
+                {
+                    return null;
+                }
+
+                @Override
+                public VelocitySensor getVelocitySensor()
+                {
+                    return _velocitySensor;
+                }
+
+                @Override
+                public void set(double speed)
+                {
+                    _setpoint = speed;
+                    motor.set(_setpoint / maxMotorRPM);
                 }
             };
         }
@@ -483,6 +529,26 @@ public final class Hardware extends SwartdogSubsystem
                 protected State getRaw()
                 {
                     return lightSensor.get() ? State.Off : State.On;
+                }
+            };
+        }
+
+        public static PositionSensor dutyCycleEncoder(int port)
+        {
+            DutyCycleEncoder encoder = new DutyCycleEncoder(port);
+
+            return new PositionSensor()
+            {
+                @Override
+                protected double getRaw() 
+                {
+                    return encoder.get();
+                }
+
+                @Override
+                public void reset() 
+                {
+                    encoder.reset();
                 }
             };
         }

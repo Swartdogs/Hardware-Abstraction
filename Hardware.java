@@ -323,6 +323,36 @@ public final class Hardware extends SwartdogSubsystem
             };
         }
 
+        public static Motor falconFlywheel(int port, double maxMotorRPM)
+        {
+            return new Motor()
+            {
+                @Override
+                protected double getRaw()
+                {
+                    return 0;
+                }
+
+                @Override
+                public PositionSensor getPositionSensor()
+                {
+                    return null;
+                }
+
+                @Override
+                public VelocitySensor getVelocitySensor()
+                {
+                    return null;
+                }
+
+                @Override
+                public void set(double speed)
+                {
+
+                }
+            };
+        }
+
         public static Motor victorSP(int port)
         {
             VictorSP motor = new VictorSP(port);
@@ -451,7 +481,7 @@ public final class Hardware extends SwartdogSubsystem
                 @Override
                 protected double getRaw()
                 {
-                    return imu.getAngle();
+                    return -imu.getGyroAngleX();
                 }
 
                 @Override

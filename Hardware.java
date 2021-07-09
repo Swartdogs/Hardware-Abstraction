@@ -323,33 +323,56 @@ public final class Hardware extends SwartdogSubsystem
             };
         }
 
-        public static Motor falconFlywheel(int port, double maxMotorRPM)
+        public static Motor falconFlywheel(int canId, double p, double i, double d, double f)
         {
+            final double            scale   = 2048.0 / 600.0;
+
+            TalonFX                 motor   = new TalonFX(canId);
+
+            motor.configNominalOutputForward(0);
+            motor.configNominalOutputReverse(0);
+            motor.configPeakOutputForward(1);
+            motor.configPeakOutputReverse(-1);
+
+            motor.config_kP(0, p);
+            motor.config_kI(0, i);
+            motor.config_kD(0, d);
+            motor.config_kF(0, f);
+
             return new Motor()
             {
-                @Override
-                protected double getRaw()
-                {
-                    return 0;
-                }
+                private double  _speed;
 
-                @Override
-                public PositionSensor getPositionSensor()
+                private VelocitySensor _velocitySensor = new VelocitySensor()
                 {
-                    return null;
-                }
+                    @Override
+                    protected double getRaw()
+                    {
+                        return motor.getSensorCollection().getIntegratedSensorVelocity();
+                    }
+                };
 
-                @Override
-                public VelocitySensor getVelocitySensor()
-                {
-                    return null;
-                }
+				@Override
+				protected double getRaw() {
+					return _speed;
+				}
 
-                @Override
-                public void set(double speed)
-                {
+				@Override
+				public PositionSensor getPositionSensor() {
+					return null;
+				}
 
-                }
+				@Override
+				public VelocitySensor getVelocitySensor() {
+					return _velocitySensor;
+				}
+
+				@Override
+				public void set(double speed) {
+                    _speed = speed * scale;
+
+                    motor.set(ControlMode.Velocity, speed);
+				}
             };
         }
 

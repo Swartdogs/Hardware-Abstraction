@@ -323,25 +323,13 @@ public final class Hardware extends SwartdogSubsystem
             };
         }
 
-        public static Motor falconFlywheel(int canId, double p, double i, double d, double f)
+        public static Motor falconFlywheel(int canId, double maxMotorRPM)
         {
-            final double            scale   = 2048.0 / 600.0;
-
             TalonFX                 motor   = new TalonFX(canId);
-
-            motor.configNominalOutputForward(0);
-            motor.configNominalOutputReverse(0);
-            motor.configPeakOutputForward(1);
-            motor.configPeakOutputReverse(-1);
-
-            motor.config_kP(0, p);
-            motor.config_kI(0, i);
-            motor.config_kD(0, d);
-            motor.config_kF(0, f);
 
             return new Motor()
             {
-                private double  _speed;
+                private double  _setpoint;
 
                 private VelocitySensor _velocitySensor = new VelocitySensor()
                 {
@@ -354,7 +342,7 @@ public final class Hardware extends SwartdogSubsystem
 
 				@Override
 				protected double getRaw() {
-					return _speed;
+					return _setpoint;
 				}
 
 				@Override
@@ -369,10 +357,18 @@ public final class Hardware extends SwartdogSubsystem
 
 				@Override
 				public void set(double speed) {
-                    _speed = speed * scale;
+                    _setpoint = speed;
+                    System.out.println(_setpoint / maxMotorRPM);
+                    motor.set(ControlMode.PercentOutput, _setpoint / maxMotorRPM);
+                }
+                
+                @Override
+                public void cache()
+                {
+                    super.cache();
 
-                    motor.set(ControlMode.Velocity, speed);
-				}
+                    _velocitySensor.cache();
+                }
             };
         }
 

@@ -358,7 +358,6 @@ public final class Hardware extends SwartdogSubsystem
 				@Override
 				public void set(double speed) {
                     _setpoint = speed;
-                    System.out.println(_setpoint / maxMotorRPM);
                     motor.set(ControlMode.PercentOutput, _setpoint / maxMotorRPM);
                 }
                 

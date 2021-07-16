@@ -3,6 +3,7 @@ package frc.robot.abstraction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import com.analog.adis16448.frc.ADIS16448_IMU;
@@ -21,6 +22,10 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -320,6 +325,15 @@ public final class Hardware extends SwartdogSubsystem
                     _speed = speed;
                     motor.set(ControlMode.PercentOutput, speed);
                 }
+
+                @Override
+                public void cache()
+                {
+                    super.cache();
+
+                    _positionSensor.cache();
+                    _velocitySensor.cache();
+                }
             };
         }
 
@@ -410,25 +424,21 @@ public final class Hardware extends SwartdogSubsystem
 
 				@Override
 				protected double getRaw() {
-					// TODO Auto-generated method stub
 					return motor.get();
 				}
 
 				@Override
 				public PositionSensor getPositionSensor() {
-					// TODO Auto-generated method stub
 					return null;
 				}
 
 				@Override
 				public VelocitySensor getVelocitySensor() {
-					// TODO Auto-generated method stub
 					return null;
 				}
 
 				@Override
 				public void set(double speed) {
-					// TODO Auto-generated method stub
 					motor.set(speed);
 				}
                 
@@ -604,6 +614,185 @@ public final class Hardware extends SwartdogSubsystem
 
     public static final class NetworkTable
     {
+        public static ShuffleboardTab shuffleboardTab(String tabName)
+        {
+            edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab tab = Shuffleboard.getTab(tabName);
+
+            return new ShuffleboardTab()
+            {
+                @Override
+                protected NetworkTableBoolean addBoolean(String networkTableId, boolean defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
+                {
+                    NetworkTableEntry entry = createWidget(tab, networkTableId, defaultValue, x, y, w, h, widget, properties);
+
+                    return new NetworkTableBoolean()
+                    {
+                        @Override
+                        public boolean getRaw()
+                        {
+                            return entry.getBoolean(false);
+                        }
+
+                        @Override
+                        public void set(boolean value)
+                        {
+                            entry.setBoolean(value);
+                        }
+                    };
+                }
+
+                @Override
+                protected NetworkTableDouble addDouble(String networkTableId, double defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
+                {
+                    NetworkTableEntry entry = createWidget(tab, networkTableId, defaultValue, x, y, w, h, widget, properties);
+
+                    return new NetworkTableDouble()
+                    {
+                        @Override
+                        public double getRaw()
+                        {
+                            return entry.getDouble(0);
+                        }
+
+                        @Override
+                        public void set(double value)
+                        {
+                            entry.setDouble(value);
+                        }
+                    };
+                }
+
+                @Override
+                protected NetworkTableString addString(String networkTableId, String defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
+                {
+                    NetworkTableEntry entry = createWidget(tab, networkTableId, defaultValue, x, y, w, h, widget, properties);
+
+                    return new NetworkTableString()
+                    {
+                        @Override
+                        public String getRaw()
+                        {
+                            return entry.getString("");
+                        }
+
+                        @Override
+                        public void set(String value)
+                        {
+                            entry.setString(value);
+                        }
+                    };
+                }
+            
+                @Override
+                protected ShuffleboardLayout addLayout(String layoutName, BuiltInLayouts layout, int x, int y, int w, int h, Map<String, Object> properties)
+                {
+                    edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout sbl = createLayout(tab, layoutName, layout, x, y, w, h, properties);
+
+                    return new ShuffleboardLayout()
+                    {
+                        @Override
+                        protected NetworkTableBoolean addBoolean(String networkTableId, boolean defaultValue, BuiltInWidgets widget, Map<String, Object> properties)
+                        {
+                            NetworkTableEntry entry = createWidget(sbl, networkTableId, defaultValue, widget, properties);
+
+                            return new NetworkTableBoolean()
+                            {
+                                @Override
+                                protected boolean getRaw()
+                                {
+                                    return entry.getBoolean(false);
+                                }
+
+                                @Override
+                                public void set(boolean value)
+                                {
+                                    entry.setBoolean(value);
+                                }
+                            };
+                        }
+
+                        @Override
+                        protected NetworkTableDouble addDouble(String networkTableId, double defaultValue, BuiltInWidgets widget, Map<String, Object> properties)
+                        {
+                            NetworkTableEntry entry = createWidget(sbl, networkTableId, defaultValue, widget, properties);
+
+                            return new NetworkTableDouble()
+                            {
+                                @Override
+                                protected double getRaw()
+                                {
+                                    return entry.getDouble(0);
+                                }
+
+                                @Override
+                                public void set(double value)
+                                {
+                                    entry.setDouble(value);
+                                }
+                            };
+                        }
+
+                        @Override
+                        protected NetworkTableString addString(String networkTableId, String defaultValue, BuiltInWidgets widget, Map<String, Object> properties)
+                        {
+                            NetworkTableEntry entry = createWidget(sbl, networkTableId, defaultValue, widget, properties);
+
+                            return new NetworkTableString()
+                            {
+                                @Override
+                                protected String getRaw()
+                                {
+                                    return entry.getString("");
+                                }
+
+                                @Override
+                                public void set(String value)
+                                {
+                                    entry.setString(value);
+                                }
+                            };
+                        }
+                    };
+                }
+
+                private edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout createLayout(edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab tab, String layoutName, BuiltInLayouts layout, int x, int y, int w, int h, Map<String, Object> properties)
+                {
+                    edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout sbl = tab.getLayout(layoutName, layout).withPosition(x, y).withSize(w, h);
+
+                    if (properties != null && !properties.isEmpty())
+                    {
+                        sbl = sbl.withProperties(properties);
+                    }
+
+                    return sbl;
+                }
+
+                private NetworkTableEntry createWidget(edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout layout, String networkTableId, Object defaultValue, BuiltInWidgets widget, Map<String, Object> properties)
+                {
+                    SimpleWidget sbw = layout.add(networkTableId, defaultValue).withWidget(widget);
+
+                    if (properties != null && !properties.isEmpty())
+                    {
+                        sbw = sbw.withProperties(properties);
+                    }
+
+                    return sbw.getEntry();
+                }
+
+                private NetworkTableEntry createWidget(edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab tab, String networkTableId, Object defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
+                {
+                    SimpleWidget sbw = tab.add(networkTableId, defaultValue).withPosition(x, y).withSize(w, h).withWidget(widget);
+
+                    if (properties != null && !properties.isEmpty())
+                    {
+                        sbw = sbw.withProperties(properties);
+                    }
+
+                    return sbw.getEntry();
+                }
+            };
+        }
+
         public static NetworkTableDouble networkTableDouble(String tableName, String varName)
         {
             NetworkTableEntry entry = NetworkTableInstance.getDefault().getTable(tableName).getEntry(varName);

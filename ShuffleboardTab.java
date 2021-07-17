@@ -26,6 +26,11 @@ public abstract class ShuffleboardTab implements Abstraction
     protected abstract NetworkTableString  addString(String networkTableId, String defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties);
     protected abstract ShuffleboardLayout  addLayout(String layoutName, BuiltInLayouts layout, int x, int y, int w, int h, Map<String, Object> properties);
 
+    public abstract void            addAutonomousChooser(int x, int y, int w, int h, BuiltInWidgets widget);
+    public abstract void            addAutonomous(String name, SwartdogCommand autonomous);
+    public abstract void            addDefaultAutonomous(String name, SwartdogCommand autonomous);
+    public abstract SwartdogCommand getSelectedAutonomous();
+
     public NetworkTableBoolean addBooleanWidget(String networkTableId, boolean defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
     {
         NetworkTableBoolean ntb = addBoolean(networkTableId, defaultValue, x, y, w, h, widget, properties);

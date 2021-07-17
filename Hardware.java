@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -620,6 +621,8 @@ public final class Hardware extends SwartdogSubsystem
 
             return new ShuffleboardTab()
             {
+                private SendableChooser<SwartdogCommand> _autoChooser = null;
+
                 @Override
                 protected NetworkTableBoolean addBoolean(String networkTableId, boolean defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
                 {
@@ -753,6 +756,48 @@ public final class Hardware extends SwartdogSubsystem
                             };
                         }
                     };
+                }
+
+                @Override
+                public void addAutonomousChooser(int x, int y, int w, int h, BuiltInWidgets widget)
+                {
+                    if (_autoChooser == null)
+                    {
+                        _autoChooser = new SendableChooser<SwartdogCommand>();
+
+                        tab.add("Autonomous Selector", _autoChooser).withPosition(x, y).withSize(w, h).withWidget(widget);
+                    }
+                }
+
+                @Override
+                public void addAutonomous(String name, SwartdogCommand autonomous)
+                {
+                    if (_autoChooser != null)
+                    {
+                        _autoChooser.addOption(name, autonomous);
+                    }
+                }
+
+                @Override
+                public void addDefaultAutonomous(String name, SwartdogCommand autonomous)
+                {
+                    if (_autoChooser != null)
+                    {
+                        _autoChooser.setDefaultOption(name, autonomous);
+                    }
+                }
+
+                @Override
+                public SwartdogCommand getSelectedAutonomous()
+                {
+                    SwartdogCommand auto = null;
+
+                    if (_autoChooser != null)
+                    {
+                        auto = _autoChooser.getSelected();
+                    }
+
+                    return auto;
                 }
 
                 private edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout createLayout(edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab tab, String layoutName, BuiltInLayouts layout, int x, int y, int w, int h, Map<String, Object> properties)

@@ -26,7 +26,7 @@ public abstract class ShuffleboardTab implements Abstraction
     protected abstract NetworkTableString  addString(String networkTableId, String defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties);
     protected abstract ShuffleboardLayout  addLayout(String layoutName, BuiltInLayouts layout, int x, int y, int w, int h, Map<String, Object> properties);
 
-    protected NetworkTableBoolean addBooleanWidget(String networkTableId, boolean defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
+    public NetworkTableBoolean addBooleanWidget(String networkTableId, boolean defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
     {
         NetworkTableBoolean ntb = addBoolean(networkTableId, defaultValue, x, y, w, h, widget, properties);
 
@@ -35,7 +35,7 @@ public abstract class ShuffleboardTab implements Abstraction
         return ntb;
     }
 
-    protected NetworkTableDouble addDoubleWidget(String networkTableId, double defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
+    public NetworkTableDouble addDoubleWidget(String networkTableId, double defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
     {
         NetworkTableDouble ntd = addDouble(networkTableId, defaultValue, x, y, w, h, widget, properties);
 
@@ -44,7 +44,7 @@ public abstract class ShuffleboardTab implements Abstraction
         return ntd;
     }
 
-    protected NetworkTableString addStringWidget(String networkTableId, String defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
+    public NetworkTableString addStringWidget(String networkTableId, String defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
     {
         NetworkTableString nts = addString(networkTableId, defaultValue, x, y, w, h, widget, properties);
 
@@ -53,7 +53,7 @@ public abstract class ShuffleboardTab implements Abstraction
         return nts;
     }
 
-    protected ShuffleboardLayout addShuffleboardLayout(String layoutName, BuiltInLayouts layout, int x, int y, int w, int h, Map<String, Object> properties)
+    public ShuffleboardLayout addShuffleboardLayout(String layoutName, BuiltInLayouts layout, int x, int y, int w, int h, Map<String, Object> properties)
     {
         ShuffleboardLayout sbl = addLayout(layoutName, layout, x, y, w, h, properties);
 

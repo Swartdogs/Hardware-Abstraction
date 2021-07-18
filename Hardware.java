@@ -691,6 +691,53 @@ public final class Hardware extends SwartdogSubsystem
                 {
                     edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout sbl = createLayout(tab, layoutName, layout, x, y, w, h, properties);
 
+                    return createLayout(sbl);
+                }
+
+                @Override
+                public void addAutonomousChooser(int x, int y, int w, int h, BuiltInWidgets widget)
+                {
+                    if (_autoChooser == null)
+                    {
+                        _autoChooser = new SendableChooser<SwartdogCommand>();
+
+                        tab.add("Autonomous Selector", _autoChooser).withPosition(x, y).withSize(w, h).withWidget(widget);
+                    }
+                }
+
+                @Override
+                public void addAutonomous(String name, SwartdogCommand autonomous)
+                {
+                    if (_autoChooser != null)
+                    {
+                        _autoChooser.addOption(name, autonomous);
+                    }
+                }
+
+                @Override
+                public void addDefaultAutonomous(String name, SwartdogCommand autonomous)
+                {
+                    if (_autoChooser != null)
+                    {
+                        _autoChooser.setDefaultOption(name, autonomous);
+                    }
+                }
+
+                @Override
+                public SwartdogCommand getSelectedAutonomous()
+                {
+                    SwartdogCommand auto = null;
+
+                    if (_autoChooser != null)
+                    {
+                        auto = _autoChooser.getSelected();
+                    }
+
+                    return auto;
+                }
+
+                private ShuffleboardLayout createLayout(edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout sbl)
+                {
                     return new ShuffleboardLayout()
                     {
                         @Override
@@ -755,49 +802,13 @@ public final class Hardware extends SwartdogSubsystem
                                 }
                             };
                         }
+
+                        @Override
+                        protected ShuffleboardLayout addLayout(String layoutName, BuiltInLayouts layout, int x, int y, Map<String, Object> properties)
+                        {
+                            return createLayout(sbl);
+                        }
                     };
-                }
-
-                @Override
-                public void addAutonomousChooser(int x, int y, int w, int h, BuiltInWidgets widget)
-                {
-                    if (_autoChooser == null)
-                    {
-                        _autoChooser = new SendableChooser<SwartdogCommand>();
-
-                        tab.add("Autonomous Selector", _autoChooser).withPosition(x, y).withSize(w, h).withWidget(widget);
-                    }
-                }
-
-                @Override
-                public void addAutonomous(String name, SwartdogCommand autonomous)
-                {
-                    if (_autoChooser != null)
-                    {
-                        _autoChooser.addOption(name, autonomous);
-                    }
-                }
-
-                @Override
-                public void addDefaultAutonomous(String name, SwartdogCommand autonomous)
-                {
-                    if (_autoChooser != null)
-                    {
-                        _autoChooser.setDefaultOption(name, autonomous);
-                    }
-                }
-
-                @Override
-                public SwartdogCommand getSelectedAutonomous()
-                {
-                    SwartdogCommand auto = null;
-
-                    if (_autoChooser != null)
-                    {
-                        auto = _autoChooser.getSelected();
-                    }
-
-                    return auto;
                 }
 
                 private edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout createLayout(edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab tab, String layoutName, BuiltInLayouts layout, int x, int y, int w, int h, Map<String, Object> properties)

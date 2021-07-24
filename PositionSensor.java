@@ -8,8 +8,7 @@ public abstract class PositionSensor implements Abstraction
     private DoubleUnaryOperator _scalingFunction = DoubleUnaryOperator.identity();
 
     protected abstract double getRaw();
-
-    public abstract void reset();
+    public    abstract void   set(double newPosition);
 
     public double get()
     {

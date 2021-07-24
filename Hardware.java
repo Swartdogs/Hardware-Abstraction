@@ -186,8 +186,8 @@ public final class Hardware extends SwartdogSubsystem
                     }
 
                     @Override
-                    public void reset() {
-                        encoder.setPosition(0);
+                    public void set(double newPosition) {
+                        encoder.setPosition(newPosition);
                     }
                     
                 };
@@ -287,9 +287,9 @@ public final class Hardware extends SwartdogSubsystem
                     }
 
                     @Override
-                    public void reset()
+                    public void set(double newPosition)
                     {
-                        motor.getSensorCollection().setIntegratedSensorPosition(0, 0);
+                        motor.getSensorCollection().setIntegratedSensorPosition(newPosition, 0);
                     }
                 };
 
@@ -487,16 +487,19 @@ public final class Hardware extends SwartdogSubsystem
 
             return new PositionSensor()
             {
+                private double _offset = 0;
+                
                 @Override
                 protected double getRaw()
                 {
-                    return -gyro.getRotation2d().getDegrees();
+                    return -gyro.getRotation2d().getDegrees() + _offset;
                 }
 
                 @Override
-                public void reset()
+                public void set(double newPosition)
                 {
                     gyro.reset();
+                    _offset = newPosition;
                 }
             };
         }
@@ -507,16 +510,19 @@ public final class Hardware extends SwartdogSubsystem
 
             return new PositionSensor()
             {
+                private double _offset = 0;
+
                 @Override
                 protected double getRaw()
                 {
-                    return -imu.getGyroAngleX();
+                    return -imu.getGyroAngleX() + _offset;
                 }
 
                 @Override
-                public void reset()
+                public void set(double newPosition)
                 {
                     imu.reset();
+                    _offset = newPosition;
                 }
             };
         }
@@ -527,14 +533,16 @@ public final class Hardware extends SwartdogSubsystem
 
             return new PositionSensor()
             {
+                private double _offset = 0;
+
                 @Override
                 protected double getRaw()
                 {
-                    return -(potentiometer.get() - 360);
+                    return -(potentiometer.get() - 360) + _offset;
                 }
 
                 @Override
-                public void reset()
+                public void set(double newPosition)
                 {
                     return;
                 }
@@ -550,18 +558,18 @@ public final class Hardware extends SwartdogSubsystem
 
             return new PositionSensor()
             {
-                private double _zero = 0;
+                private double _offset = 0;
 
                 @Override
                 protected double getRaw()
                 {
-                    return analogInput.getAverageValue() - _zero;
+                    return analogInput.getAverageValue() + _offset;
                 }
 
                 @Override
-                public void reset()
+                public void set(double newPosition)
                 {
-                    _zero = analogInput.getAverageValue();
+                    _offset = newPosition - analogInput.getAverageValue();
                 }
             };
         }
@@ -598,16 +606,19 @@ public final class Hardware extends SwartdogSubsystem
 
             return new PositionSensor()
             {
+                private double _offset = 0;
+
                 @Override
                 protected double getRaw() 
                 {
-                    return encoder.get();
+                    return encoder.get() + _offset;
                 }
 
                 @Override
-                public void reset() 
+                public void set(double newPosition) 
                 {
                     encoder.reset();
+                    _offset = newPosition;
                 }
             };
         }

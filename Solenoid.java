@@ -97,4 +97,35 @@ public abstract class Solenoid implements Abstraction
             }
         };
     }
+
+    public static Solenoid solenoid(int port)
+    {
+        return new Solenoid()
+        {
+            private edu.wpi.first.wpilibj.Solenoid _solenoid = new edu.wpi.first.wpilibj.Solenoid(port);
+            private ExtendState                    _state    = ExtendState.Retracted;
+
+            @Override
+            protected ExtendState getRaw()
+            {
+                return _state;
+            }
+
+            @Override
+            public void extend()
+            {
+                _solenoid.set(true);
+                _state = ExtendState.Extended;
+                cache();
+            }
+
+            @Override
+            public void retract()
+            {
+                _solenoid.set(false);
+                _state = ExtendState.Retracted;
+                cache();
+            }
+        };
+    }
 }

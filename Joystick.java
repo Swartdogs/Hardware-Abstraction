@@ -1,5 +1,8 @@
 package frc.robot.abstraction;
 
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.abstraction.Enumerations.State;
+
 public abstract class Joystick implements Abstraction
 {
     private double  _x;
@@ -118,5 +121,102 @@ public abstract class Joystick implements Abstraction
         }
 
         return modified;
+    }
+
+    public static Joystick joystick(int joystickId)
+    {
+        return new Joystick()
+        {
+            private edu.wpi.first.wpilibj.Joystick _joystick = new edu.wpi.first.wpilibj.Joystick(joystickId);
+
+            private Switch[] _switches = new Switch[12];
+            private JoystickButton[] _buttons = new JoystickButton[12];
+
+            @Override
+            protected double getRawX()
+            {
+                return _joystick.getX();
+            }
+
+            @Override
+            protected double getRawY()
+            {
+                return -_joystick.getY();
+            }
+
+            @Override
+            protected double getRawZ()
+            {
+                return _joystick.getZ();
+            }
+
+            @Override
+            protected double getRawThrottle()
+            {
+                return _joystick.getRawAxis(3);
+            }
+
+            @Override
+            public Switch getButton(int buttonNum)
+            {
+                if (buttonNum < 1 || buttonNum > _switches.length)
+                {
+                    throw new IndexOutOfBoundsException(String.format("Button %d isn't available on this joystick!", buttonNum));
+                }
+
+                if (_switches[buttonNum - 1] == null)
+                {
+                    _buttons[buttonNum - 1]  = new JoystickButton(_joystick, buttonNum);
+                    _switches[buttonNum - 1] = new Switch()
+                    {
+                        @Override
+                        protected State getRaw()
+                        {
+                            return _joystick.getRawButton(buttonNum) ? State.On : State.Off;
+                        }
+
+                        @Override
+                        public void whenActivated(SwartdogCommand command, boolean interruptible)
+                        {
+                            _buttons[buttonNum - 1].whenPressed(command, interruptible);
+                        }
+
+                        @Override
+                        public void whileActive(SwartdogCommand command, boolean interruptible)
+                        {
+                            _buttons[buttonNum - 1].whileHeld(command, interruptible);
+                        }
+
+                        @Override
+                        public void cancelWhenActivated(SwartdogCommand command)
+                        {
+                            _buttons[buttonNum - 1].cancelWhenPressed(command);
+                        }
+                    };
+                }
+
+                return _switches[buttonNum - 1];
+            }
+
+            @Override
+            public int getButtonCount()
+            {
+                return _buttons.length;
+            }
+
+            @Override
+            public void cache()
+            {
+                super.cache();
+
+                for (Switch button : _switches)
+                {
+                    if (button != null)
+                    {
+                        button.cache();
+                    }
+                }
+            }
+        };
     }
 }

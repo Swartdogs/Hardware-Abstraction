@@ -1,5 +1,14 @@
 package frc.robot.abstraction;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.VictorSP;
+
 public abstract class Motor implements Abstraction
 {
     private double _speed;
@@ -100,6 +109,290 @@ public abstract class Motor implements Abstraction
                 {
                     m.set(speed);
                 }
+            }
+        };
+    }
+
+    public static Motor neo(int canId)
+    {
+        return new Motor()
+        {
+            private CANSparkMax _motor   = new CANSparkMax(canId, MotorType.kBrushless);
+            private CANEncoder  _encoder = _motor.getEncoder();
+    
+            private PositionSensor _positionSensor = new PositionSensor()
+            {
+
+                @Override
+                protected double getRaw() 
+                {
+                    return _encoder.getPosition();
+                }
+
+                @Override
+                public void set(double newPosition) 
+                {
+                    _encoder.setPosition(newPosition);
+                }
+            };
+
+            private VelocitySensor _velocitySensor = new VelocitySensor()
+            {
+                @Override
+                protected double getRaw() 
+                {
+                    return _encoder.getVelocity();
+                }
+            };
+
+            @Override
+            protected double getRaw()
+            {
+                return _motor.get();
+            }
+
+            @Override
+            public PositionSensor getPositionSensor()
+            {
+                return _positionSensor;
+            }
+
+            @Override
+            public VelocitySensor getVelocitySensor()
+            {
+                return _velocitySensor;
+            }
+
+            @Override
+            public void set(double speed)
+            {
+                _motor.set(speed);
+            }
+        };
+    }
+
+    public static Motor neoFlywheel(int canId, double maxMotorRPM)
+    {
+        return new Motor()
+        {
+            private CANSparkMax _motor    = new CANSparkMax(canId, MotorType.kBrushless);
+            private CANEncoder  _encoder  = _motor.getEncoder();
+            private double      _setpoint = 0;
+
+            private VelocitySensor _velocitySensor = new VelocitySensor()
+            {
+                @Override 
+                protected double getRaw()
+                {
+                    return _encoder.getVelocity();
+                }
+            };
+
+            @Override
+            protected double getRaw()
+            {
+                return _setpoint;
+            }
+
+            @Override
+            public PositionSensor getPositionSensor()
+            {
+                return null;
+            }
+
+            @Override
+            public VelocitySensor getVelocitySensor()
+            {
+                return _velocitySensor;
+            }
+
+            @Override
+            public void set(double speed)
+            {
+                _setpoint = speed;
+                _motor.set(_setpoint / maxMotorRPM);
+            }
+        };
+    }
+
+    public static Motor falcon(int canId)
+    {
+        return new Motor()
+        {
+            private TalonFX _motor = new TalonFX(canId);
+            private double  _speed;
+
+            private PositionSensor _positionSensor = new PositionSensor()
+            {
+                @Override
+                protected double getRaw()
+                {
+                    return _motor.getSensorCollection().getIntegratedSensorPosition();
+                }
+
+                @Override
+                public void set(double newPosition)
+                {
+                    _motor.getSensorCollection().setIntegratedSensorPosition(newPosition, 0);
+                }
+            };
+
+            private VelocitySensor _velocitySensor = new VelocitySensor()
+            {
+                @Override
+                protected double getRaw()
+                {
+                    return _motor.getSensorCollection().getIntegratedSensorVelocity();
+                }
+            };
+
+            @Override
+            protected double getRaw()
+            {
+                return _speed;
+            }
+
+            @Override
+            public PositionSensor getPositionSensor()
+            {
+                return _positionSensor;
+            }
+
+            @Override
+            public VelocitySensor getVelocitySensor()
+            {
+                return _velocitySensor;
+            }
+
+            @Override
+            public void set(double speed)
+            {
+                _speed = speed;
+                _motor.set(ControlMode.PercentOutput, speed);
+            }
+
+            @Override
+            public void cache()
+            {
+                super.cache();
+
+                _positionSensor.cache();
+                _velocitySensor.cache();
+            }
+        };
+    }
+
+    public static Motor falconFlywheel(int canId, double maxMotorRPM)
+    {
+        return new Motor()
+        {
+            private TalonFX _motor = new TalonFX(canId);
+            private double  _setpoint;
+
+            private VelocitySensor _velocitySensor = new VelocitySensor()
+            {
+                @Override
+                protected double getRaw()
+                {
+                    return _motor.getSensorCollection().getIntegratedSensorVelocity();
+                }
+            };
+
+            @Override
+            protected double getRaw() 
+            {
+                return _setpoint;
+            }
+
+            @Override
+            public PositionSensor getPositionSensor() 
+            {
+                return null;
+            }
+
+            @Override
+            public VelocitySensor getVelocitySensor() 
+            {
+                return _velocitySensor;
+            }
+
+            @Override
+            public void set(double speed) 
+            {
+                _setpoint = speed;
+                _motor.set(ControlMode.PercentOutput, _setpoint / maxMotorRPM);
+            }
+            
+            @Override
+            public void cache()
+            {
+                super.cache();
+
+                _velocitySensor.cache();
+            }
+        };
+    }
+
+    public static Motor victorSP(int port)
+    {
+        return new Motor()
+        {
+            private VictorSP _motor = new VictorSP(port);
+
+            @Override
+            protected double getRaw() 
+            {
+                return _motor.get();
+            }
+
+            @Override
+            public PositionSensor getPositionSensor() 
+            {
+                return null;
+            }
+
+            @Override
+            public VelocitySensor getVelocitySensor() 
+            {
+                return null;
+            }
+
+            @Override
+            public void set(double speed) 
+            {
+                _motor.set(speed);
+            }
+        };
+    }
+
+    public static Motor victorSPX(int canId)
+    {
+        return new Motor()
+        {
+            private WPI_VictorSPX _motor = new WPI_VictorSPX(canId);
+
+            @Override
+            protected double getRaw() 
+            {
+                return _motor.get();
+            }
+
+            @Override
+            public PositionSensor getPositionSensor() 
+            {
+                return null;
+            }
+
+            @Override
+            public VelocitySensor getVelocitySensor() 
+            {
+                return null;
+            }
+
+            @Override
+            public void set(double speed) 
+            {
+                _motor.set(speed);
             }
         };
     }

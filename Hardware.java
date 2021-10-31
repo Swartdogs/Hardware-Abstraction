@@ -35,4 +35,9 @@ public final class Hardware extends SwartdogSubsystem
             abstraction.cache();
         }
     }
+
+    @Override
+    public void setGameMode(GameMode mode) {
+        return;
+    }
 }

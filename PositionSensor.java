@@ -2,14 +2,12 @@ package frc.robot.abstraction;
 
 import java.util.function.DoubleUnaryOperator;
 
-import com.analog.adis16448.frc.ADIS16448_IMU;
-
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
-public abstract class PositionSensor implements Abstraction
+public abstract class PositionSensor
 {
     public enum IMUAxis
     {
@@ -18,16 +16,10 @@ public abstract class PositionSensor implements Abstraction
         Z
     }
 
-    private double              _position;
-    private DoubleUnaryOperator _scalingFunction = DoubleUnaryOperator.identity();
+    protected DoubleUnaryOperator _scalingFunction = DoubleUnaryOperator.identity();
 
-    protected abstract double getRaw();
-    public    abstract void   set(double newPosition);
-
-    public double get()
-    {
-        return _scalingFunction.applyAsDouble(_position);
-    }
+    public abstract double get();
+    public abstract void   set(double newPosition);
 
     public void setScalingFunction(DoubleUnaryOperator scalingFunction)
     {
@@ -39,11 +31,6 @@ public abstract class PositionSensor implements Abstraction
         _scalingFunction = scalingFunction;
     }
 
-    public void cache()
-    {
-        _position = getRaw();
-    }
-
     public static PositionSensor gyro()
     {
         return new PositionSensor()
@@ -52,59 +39,15 @@ public abstract class PositionSensor implements Abstraction
             private double        _offset = 0;
             
             @Override
-            protected double getRaw()
+            public double get()
             {
-                return -_gyro.getRotation2d().getDegrees() + _offset;
+                return _scalingFunction.applyAsDouble(-_gyro.getRotation2d().getDegrees() + _offset);
             }
 
             @Override
             public void set(double newPosition)
             {
                 _gyro.reset();
-                _offset = newPosition;
-            }
-        };
-    }
-
-    public static PositionSensor imu(IMUAxis axis, boolean inverted)
-    {
-        return new PositionSensor()
-        {
-            private ADIS16448_IMU _imu    = new ADIS16448_IMU();
-            private double        _offset = 0;
-
-            @Override
-            protected double getRaw()
-            {
-                double raw = 0;
-
-                switch (axis)
-                {
-                    case X:
-                        raw = _imu.getGyroAngleX();
-                        break;
-                    
-                    case Y:
-                        raw = _imu.getGyroAngleY();
-                        break;
-
-                    case Z:
-                        raw = _imu.getGyroAngleZ();
-                        break;
-                }
-
-                if (inverted)
-                {
-                    raw *= -1;
-                }
-
-                return raw + _offset;
-            }
-
-            @Override
-            public void set(double newPosition)
-            {
-                _imu.reset();
                 _offset = newPosition;
             }
         };
@@ -118,9 +61,9 @@ public abstract class PositionSensor implements Abstraction
             private double              _offset = 0;
 
             @Override
-            protected double getRaw()
+            public double get()
             {
-                return -(_potentiometer.get() - 360) + _offset;
+                return _scalingFunction.applyAsDouble(-(_potentiometer.get() - 360) + _offset);
             }
 
             @Override
@@ -144,9 +87,9 @@ public abstract class PositionSensor implements Abstraction
             private double _offset = 0;
 
             @Override
-            protected double getRaw()
+            public double get()
             {
-                return analogInput.getAverageValue() + _offset;
+                return _scalingFunction.applyAsDouble(analogInput.getAverageValue() + _offset);
             }
 
             @Override
@@ -165,9 +108,9 @@ public abstract class PositionSensor implements Abstraction
             private double           _offset = 0;
 
             @Override
-            protected double getRaw() 
+            public double get() 
             {
-                return _encoder.get() + _offset;
+                return _scalingFunction.applyAsDouble(_encoder.get() + _offset);
             }
 
             @Override

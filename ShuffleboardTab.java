@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
-public abstract class ShuffleboardTab implements Abstraction
+public abstract class ShuffleboardTab
 {
     private HashSet<NetworkTableBoolean> _ntbs;
     private HashSet<NetworkTableDouble>  _ntds;
@@ -70,29 +70,6 @@ public abstract class ShuffleboardTab implements Abstraction
         return sbl;
     }
 
-    public void cache()
-    {
-        for (NetworkTableBoolean ntb : _ntbs)
-        {
-            ntb.cache();
-        }
-
-        for (NetworkTableDouble ntd : _ntds)
-        {
-            ntd.cache();
-        }
-
-        for (NetworkTableString nts : _ntss)
-        {
-            nts.cache();
-        }
-
-        for (ShuffleboardLayout sbl : _sbls)
-        {
-            sbl.cache();
-        }
-    }
-
     public static ShuffleboardTab shuffleboardTab(String tabName)
     {
         return new ShuffleboardTab()
@@ -108,7 +85,7 @@ public abstract class ShuffleboardTab implements Abstraction
                 return new NetworkTableBoolean()
                 {
                     @Override
-                    public boolean getRaw()
+                    public boolean get()
                     {
                         return entry.getBoolean(false);
                     }
@@ -129,7 +106,7 @@ public abstract class ShuffleboardTab implements Abstraction
                 return new NetworkTableDouble()
                 {
                     @Override
-                    public double getRaw()
+                    public double get()
                     {
                         return entry.getDouble(0);
                     }
@@ -150,7 +127,7 @@ public abstract class ShuffleboardTab implements Abstraction
                 return new NetworkTableString()
                 {
                     @Override
-                    public String getRaw()
+                    public String get()
                     {
                         return entry.getString("");
                     }
@@ -225,7 +202,7 @@ public abstract class ShuffleboardTab implements Abstraction
                         return new NetworkTableBoolean()
                         {
                             @Override
-                            protected boolean getRaw()
+                            public boolean get()
                             {
                                 return entry.getBoolean(false);
                             }
@@ -246,7 +223,7 @@ public abstract class ShuffleboardTab implements Abstraction
                         return new NetworkTableDouble()
                         {
                             @Override
-                            protected double getRaw()
+                            public double get()
                             {
                                 return entry.getDouble(0);
                             }
@@ -267,7 +244,7 @@ public abstract class ShuffleboardTab implements Abstraction
                         return new NetworkTableString()
                         {
                             @Override
-                            protected String getRaw()
+                            public String get()
                             {
                                 return entry.getString("");
                             }

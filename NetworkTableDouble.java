@@ -3,24 +3,11 @@ package frc.robot.abstraction;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
-public abstract class NetworkTableDouble implements Abstraction
+public abstract class NetworkTableDouble
 {
-    private double _value;
-
-    protected abstract double getRaw();
-
-    public abstract void set(double value);
+    public abstract double get();
+    public abstract void   set(double value);
     
-    public double get()
-    {
-        return _value;
-    }
-
-    public void cache()
-    {
-        _value = getRaw();
-    }
-
     public static NetworkTableDouble networkTableDouble(String tableName, String varName)
     {
         return new NetworkTableDouble()
@@ -28,7 +15,7 @@ public abstract class NetworkTableDouble implements Abstraction
             private NetworkTableEntry _entry = NetworkTableInstance.getDefault().getTable(tableName).getEntry(varName);
 
             @Override
-            protected double getRaw()
+            public double get()
             {
                 return _entry.getDouble(0);
             }

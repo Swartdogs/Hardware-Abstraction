@@ -3,40 +3,27 @@ package frc.robot.abstraction;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-import com.revrobotics.CANEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 
-public abstract class Motor implements Abstraction
+public abstract class Motor
 {
-    private double _speed;
-
-    protected abstract double getRaw();
-
+    public abstract double         get();
     public abstract PositionSensor getPositionSensor();
     public abstract VelocitySensor getVelocitySensor();
     public abstract void           set(double speed);
-
-    public double get()
-    {
-        return _speed;
-    }
-
-    public void cache()
-    {
-        _speed = getRaw();
-    }
 
     public static Motor invert(Motor toInvert)
     {
         return new Motor()
         {
             @Override
-            protected double getRaw()
+            public double get()
             {
-                return -toInvert.getRaw();
+                return -toInvert.get();
             }
 
             @Override
@@ -64,13 +51,13 @@ public abstract class Motor implements Abstraction
         return new Motor()
         {
             @Override
-            protected double getRaw()
+            public double get()
             {
                 double speed = 0;
 
                 if (motors.length > 0)
                 {
-                    speed = motors[0].getRaw();
+                    speed = motors[0].get();
                 }
 
                 return speed;
@@ -117,14 +104,14 @@ public abstract class Motor implements Abstraction
     {
         return new Motor()
         {
-            private CANSparkMax _motor   = new CANSparkMax(canId, MotorType.kBrushless);
-            private CANEncoder  _encoder = _motor.getEncoder();
+            private CANSparkMax     _motor   = new CANSparkMax(canId, MotorType.kBrushless);
+            private RelativeEncoder _encoder = _motor.getEncoder();
     
             private PositionSensor _positionSensor = new PositionSensor()
             {
 
                 @Override
-                protected double getRaw() 
+                public double get() 
                 {
                     return _encoder.getPosition();
                 }
@@ -139,14 +126,14 @@ public abstract class Motor implements Abstraction
             private VelocitySensor _velocitySensor = new VelocitySensor()
             {
                 @Override
-                protected double getRaw() 
+                public double get() 
                 {
                     return _encoder.getVelocity();
                 }
             };
 
             @Override
-            protected double getRaw()
+            public double get()
             {
                 return _motor.get();
             }
@@ -175,21 +162,21 @@ public abstract class Motor implements Abstraction
     {
         return new Motor()
         {
-            private CANSparkMax _motor    = new CANSparkMax(canId, MotorType.kBrushless);
-            private CANEncoder  _encoder  = _motor.getEncoder();
-            private double      _setpoint = 0;
+            private CANSparkMax     _motor    = new CANSparkMax(canId, MotorType.kBrushless);
+            private RelativeEncoder _encoder  = _motor.getEncoder();
+            private double          _setpoint = 0;
 
             private VelocitySensor _velocitySensor = new VelocitySensor()
             {
                 @Override 
-                protected double getRaw()
+                public double get()
                 {
                     return _encoder.getVelocity();
                 }
             };
 
             @Override
-            protected double getRaw()
+            public double get()
             {
                 return _setpoint;
             }
@@ -225,7 +212,7 @@ public abstract class Motor implements Abstraction
             private PositionSensor _positionSensor = new PositionSensor()
             {
                 @Override
-                protected double getRaw()
+                public double get()
                 {
                     return _motor.getSensorCollection().getIntegratedSensorPosition();
                 }
@@ -240,14 +227,14 @@ public abstract class Motor implements Abstraction
             private VelocitySensor _velocitySensor = new VelocitySensor()
             {
                 @Override
-                protected double getRaw()
+                public double get()
                 {
                     return _motor.getSensorCollection().getIntegratedSensorVelocity();
                 }
             };
 
             @Override
-            protected double getRaw()
+            public double get()
             {
                 return _speed;
             }
@@ -270,15 +257,6 @@ public abstract class Motor implements Abstraction
                 _speed = speed;
                 _motor.set(ControlMode.PercentOutput, speed);
             }
-
-            @Override
-            public void cache()
-            {
-                super.cache();
-
-                _positionSensor.cache();
-                _velocitySensor.cache();
-            }
         };
     }
 
@@ -292,14 +270,14 @@ public abstract class Motor implements Abstraction
             private VelocitySensor _velocitySensor = new VelocitySensor()
             {
                 @Override
-                protected double getRaw()
+                public double get()
                 {
                     return _motor.getSensorCollection().getIntegratedSensorVelocity();
                 }
             };
 
             @Override
-            protected double getRaw() 
+            public double get() 
             {
                 return _setpoint;
             }
@@ -322,14 +300,6 @@ public abstract class Motor implements Abstraction
                 _setpoint = speed;
                 _motor.set(ControlMode.PercentOutput, _setpoint / maxMotorRPM);
             }
-            
-            @Override
-            public void cache()
-            {
-                super.cache();
-
-                _velocitySensor.cache();
-            }
         };
     }
 
@@ -340,7 +310,7 @@ public abstract class Motor implements Abstraction
             private VictorSP _motor = new VictorSP(port);
 
             @Override
-            protected double getRaw() 
+            public double get() 
             {
                 return _motor.get();
             }
@@ -372,7 +342,7 @@ public abstract class Motor implements Abstraction
             private WPI_VictorSPX _motor = new WPI_VictorSPX(canId);
 
             @Override
-            protected double getRaw() 
+            public double get() 
             {
                 return _motor.get();
             }

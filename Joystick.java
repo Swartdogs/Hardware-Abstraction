@@ -3,50 +3,25 @@ package frc.robot.abstraction;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.abstraction.Enumerations.State;
 
-public abstract class Joystick implements Abstraction
+public abstract class Joystick
 {
-    private double  _x;
-    private double  _y;
-    private double  _z;
-    private double  _throttle;
+    protected double  _xDeadband;
+    protected double  _yDeadband;
+    protected double  _zDeadband;
+    protected double  _throttleDeadband;
 
-    private double  _xDeadband;
-    private double  _yDeadband;
-    private double  _zDeadband;
-    private double  _throttleDeadband;
+    protected boolean _squareX;
+    protected boolean _squareY;
+    protected boolean _squareZ;
+    protected boolean _squareThrottle;
 
-    private boolean _squareX;
-    private boolean _squareY;
-    private boolean _squareZ;
-    private boolean _squareThrottle;
-
-    protected abstract double getRawX();
-    protected abstract double getRawY();
-    protected abstract double getRawZ();
-    protected abstract double getRawThrottle();
+    public abstract double getX();
+    public abstract double getY();
+    public abstract double getZ();
+    public abstract double getThrottle();
 
     public abstract Switch getButton(int buttonNum);
     public abstract int    getButtonCount();
-
-    public double getX()
-    {
-        return _x;
-    }
-
-    public double getY()
-    {
-        return _y;
-    }
-
-    public double getZ()
-    {
-        return _z;
-    }
-
-    public double getThrottle()
-    {
-        return _throttle;
-    }
 
     public void setXDeadband(double xDeadband)
     {
@@ -88,15 +63,7 @@ public abstract class Joystick implements Abstraction
         _squareThrottle = squareThrottle;
     }
 
-    public void cache()
-    {
-        _x        = applyDeadband(getRawX(),        _xDeadband,        _squareX);
-        _y        = applyDeadband(getRawY(),        _yDeadband,        _squareY);
-        _z        = applyDeadband(getRawZ(),        _zDeadband,        _squareZ);
-        _throttle = applyDeadband(getRawThrottle(), _throttleDeadband, _squareThrottle);
-    }
-
-    private double applyDeadband(double raw, double deadband, boolean squareInputs)
+    protected double applyDeadband(double raw, double deadband, boolean squareInputs)
     {
         double modified = 0.0;
 
@@ -133,27 +100,27 @@ public abstract class Joystick implements Abstraction
             private JoystickButton[] _buttons = new JoystickButton[12];
 
             @Override
-            protected double getRawX()
+            public double getX()
             {
-                return _joystick.getX();
+                return applyDeadband(_joystick.getX(), _xDeadband, _squareX);
             }
 
             @Override
-            protected double getRawY()
+            public double getY()
             {
-                return -_joystick.getY();
+                return applyDeadband(-_joystick.getY(), _yDeadband, _squareY);
             }
 
             @Override
-            protected double getRawZ()
+            public double getZ()
             {
-                return _joystick.getZ();
+                return applyDeadband(_joystick.getZ(), _zDeadband, _squareZ);
             }
 
             @Override
-            protected double getRawThrottle()
+            public double getThrottle()
             {
-                return _joystick.getRawAxis(3);
+                return applyDeadband(_joystick.getRawAxis(3), _throttleDeadband, _squareThrottle);
             }
 
             @Override
@@ -170,27 +137,9 @@ public abstract class Joystick implements Abstraction
                     _switches[buttonNum - 1] = new Switch()
                     {
                         @Override
-                        protected State getRaw()
+                        public State get()
                         {
                             return _joystick.getRawButton(buttonNum) ? State.On : State.Off;
-                        }
-
-                        @Override
-                        public void whenActivated(SwartdogCommand command, boolean interruptible)
-                        {
-                            _buttons[buttonNum - 1].whenPressed(command, interruptible);
-                        }
-
-                        @Override
-                        public void whileActive(SwartdogCommand command, boolean interruptible)
-                        {
-                            _buttons[buttonNum - 1].whileHeld(command, interruptible);
-                        }
-
-                        @Override
-                        public void cancelWhenActivated(SwartdogCommand command)
-                        {
-                            _buttons[buttonNum - 1].cancelWhenPressed(command);
                         }
                     };
                 }
@@ -202,20 +151,6 @@ public abstract class Joystick implements Abstraction
             public int getButtonCount()
             {
                 return _buttons.length;
-            }
-
-            @Override
-            public void cache()
-            {
-                super.cache();
-
-                for (Switch button : _switches)
-                {
-                    if (button != null)
-                    {
-                        button.cache();
-                    }
-                }
             }
         };
     }

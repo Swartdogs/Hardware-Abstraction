@@ -1,20 +1,7 @@
 package frc.robot.abstraction;
 
-public abstract class NetworkTableString implements Abstraction
+public abstract class NetworkTableString
 {
-    private String _value;
-
-    protected abstract String getRaw();
-
-    public abstract void set(String value);
-
-    public String get()
-    {
-        return _value;
-    }
-
-    public void cache()
-    {
-        _value = getRaw();
-    }
+    public abstract String get();
+    public abstract void   set(String value);
 }

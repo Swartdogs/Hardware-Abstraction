@@ -6,7 +6,7 @@ import java.util.Map;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 
-public abstract class ShuffleboardLayout implements Abstraction
+public abstract class ShuffleboardLayout
 {
     private HashSet<NetworkTableBoolean> _ntbs;
     private HashSet<NetworkTableDouble>  _ntds;
@@ -60,28 +60,5 @@ public abstract class ShuffleboardLayout implements Abstraction
         _sbls.add(sbl);
 
         return sbl;
-    }
-
-    public void cache()
-    {
-        for (NetworkTableBoolean ntb : _ntbs)
-        {
-            ntb.cache();
-        }
-
-        for (NetworkTableDouble ntd : _ntds)
-        {
-            ntd.cache();
-        }
-
-        for (NetworkTableString nts : _ntss)
-        {
-            nts.cache();
-        }
-
-        for (ShuffleboardLayout sbl : _sbls)
-        {
-            sbl.cache();
-        }
     }
 }

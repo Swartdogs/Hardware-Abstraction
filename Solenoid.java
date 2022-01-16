@@ -1,20 +1,13 @@
 package frc.robot.abstraction;
 
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import frc.robot.abstraction.Enumerations.ExtendState;
 
-public abstract class Solenoid implements Abstraction
+public abstract class Solenoid
 {
-    private ExtendState _state;
-
-    protected abstract ExtendState getRaw();
-
+    public abstract ExtendState get();
     public abstract void extend();
     public abstract void retract();
-
-    public ExtendState get()
-    {
-        return _state;
-    }
     
     public void set(ExtendState state)
     {
@@ -33,22 +26,13 @@ public abstract class Solenoid implements Abstraction
         }
     }
 
-    public void cache()
-    {
-        _state = getRaw();
-    }
-
     public static Solenoid compose(Solenoid... solenoids)
     {
         return new Solenoid()
         {
-            private ExtendState _state;
-
             @Override
             public void extend()
             {
-                _state = ExtendState.Extended;
-
                 for (Solenoid s : solenoids)
                 {
                     s.extend();
@@ -58,8 +42,6 @@ public abstract class Solenoid implements Abstraction
             @Override
             public void retract()
             {
-                _state = ExtendState.Retracted;
-
                 for (Solenoid s : solenoids)
                 {
                     s.retract();
@@ -67,9 +49,9 @@ public abstract class Solenoid implements Abstraction
             }
 
             @Override
-            protected ExtendState getRaw()
+            public ExtendState get()
             {
-                return _state;
+                return solenoids[0].get();
             }
         };
     }
@@ -91,40 +73,35 @@ public abstract class Solenoid implements Abstraction
             }
 
             @Override
-            protected ExtendState getRaw()
+            public ExtendState get()
             {
                 return solenoid.get() == ExtendState.Extended ? ExtendState.Retracted : ExtendState.Extended;
             }
         };
     }
 
-    public static Solenoid solenoid(int port)
+    public static Solenoid solenoid(PneumaticsModuleType type, int port)
     {
         return new Solenoid()
         {
-            private edu.wpi.first.wpilibj.Solenoid _solenoid = new edu.wpi.first.wpilibj.Solenoid(port);
-            private ExtendState                    _state    = ExtendState.Retracted;
+            private edu.wpi.first.wpilibj.Solenoid _solenoid = new edu.wpi.first.wpilibj.Solenoid(type, port);
 
             @Override
-            protected ExtendState getRaw()
+            public ExtendState get()
             {
-                return _state;
+                return _solenoid.get() ? ExtendState.Extended : ExtendState.Retracted;
             }
 
             @Override
             public void extend()
             {
                 _solenoid.set(true);
-                _state = ExtendState.Extended;
-                cache();
             }
 
             @Override
             public void retract()
             {
                 _solenoid.set(false);
-                _state = ExtendState.Retracted;
-                cache();
             }
         };
     }

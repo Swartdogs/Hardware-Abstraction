@@ -2,18 +2,21 @@ package frc.robot.abstraction;
 
 import java.util.function.DoubleUnaryOperator;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.SPI;
 
 public abstract class PositionSensor
 {
     public enum IMUAxis
     {
-        X,
-        Y,
-        Z
+        Yaw,
+        Pitch,
+        Roll
     }
 
     protected DoubleUnaryOperator _scalingFunction = DoubleUnaryOperator.identity();
@@ -29,6 +32,45 @@ public abstract class PositionSensor
         }
 
         _scalingFunction = scalingFunction;
+    }
+
+    public static PositionSensor navX(IMUAxis axis)
+    {
+        return new PositionSensor()
+        {
+            private AHRS   _navX   = new AHRS(SPI.Port.kMXP);
+            private double _offset = 0;
+
+            @Override
+            public double get()
+            {
+                double angle = 0.0;
+
+                switch(axis)
+                {
+                    case Yaw:
+                        angle = _navX.getYaw();
+                        break;
+
+                    case Pitch:
+                        angle = _navX.getPitch();
+                        break;
+
+                    case Roll:
+                        angle = _navX.getRoll();
+                        break;
+                }
+                
+                return _scalingFunction.applyAsDouble(angle) + _offset;
+            }
+
+            @Override
+            public void set(double newPosition)
+            {
+                _navX.reset();
+                _offset = newPosition;
+            }
+        };
     }
 
     public static PositionSensor gyro()

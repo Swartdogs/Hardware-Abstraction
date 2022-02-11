@@ -141,6 +141,24 @@ public abstract class Joystick
                         {
                             return _joystick.getRawButton(buttonNum) ? State.On : State.Off;
                         }
+
+                        @Override
+                        public void whenDeactivated(SwartdogCommand command, boolean interruptible)
+                        {
+                            _buttons[buttonNum - 1].whenReleased(command, interruptible);
+                        }
+
+                        @Override
+                        public void whileActive(SwartdogCommand command, boolean interruptible)
+                        {
+                            _buttons[buttonNum - 1].whenHeld(command, interruptible);       
+                        }
+
+                        @Override
+                        public void whenActivated(SwartdogCommand command, boolean interruptible)
+                        {
+                            _buttons[buttonNum - 1].whenPressed(command, interruptible);          
+                        }
                     };
                 }
 

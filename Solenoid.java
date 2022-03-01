@@ -80,11 +80,11 @@ public abstract class Solenoid
         };
     }
 
-    public static Solenoid solenoid(PneumaticsModuleType type, int port)
+    public static Solenoid solenoid(int canId, PneumaticsModuleType type, int port)
     {
         return new Solenoid()
         {
-            private edu.wpi.first.wpilibj.Solenoid _solenoid = new edu.wpi.first.wpilibj.Solenoid(type, port);
+            private edu.wpi.first.wpilibj.Solenoid _solenoid = new edu.wpi.first.wpilibj.Solenoid(canId, type, port);
 
             @Override
             public ExtendState get()

@@ -2,6 +2,7 @@ package frc.robot.abstraction;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax;
@@ -363,6 +364,38 @@ public abstract class Motor
             public void set(double speed) 
             {
                 _motor.set(speed);
+            }
+        };
+    }
+
+    public static Motor talonSRX(int canId)
+    {
+        return new Motor()
+        {
+            private TalonSRX _motor = new TalonSRX(canId);
+
+            @Override
+            public double get()
+            {
+                return _motor.getMotorOutputPercent();
+            }
+
+            @Override
+            public PositionSensor getPositionSensor()
+            {
+                return null;
+            }
+
+            @Override
+            public VelocitySensor getVelocitySensor()
+            {
+                return null;
+            }
+
+            @Override
+            public void set(double speed)
+            {
+                _motor.set(ControlMode.PercentOutput, speed);
             }
         };
     }

@@ -268,12 +268,14 @@ public abstract class Motor
             private TalonFX _motor = new TalonFX(canId);
             private double  _setpoint;
 
+            private final double SENSOR_TO_RPM_CONVERSION = 600.0 / 2048.0;
+
             private VelocitySensor _velocitySensor = new VelocitySensor()
             {
                 @Override
                 public double get()
                 {
-                    return _motor.getSensorCollection().getIntegratedSensorVelocity();
+                    return _motor.getSensorCollection().getIntegratedSensorVelocity() * SENSOR_TO_RPM_CONVERSION;
                 }
             };
 

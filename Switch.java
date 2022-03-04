@@ -39,6 +39,16 @@ public abstract class Switch
 
     }
 
+    public void cancelWhenActivated(SwartdogCommand command)
+    {
+        cancelWhenActivated(command, true);
+    }
+
+    public void cancelWhenActivated(SwartdogCommand command, boolean interruptible)
+    {
+
+    }
+
     public static Switch genericSwitch(Supplier<State> stateSupplier)
     {
         return new Switch()

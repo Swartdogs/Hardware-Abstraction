@@ -159,6 +159,12 @@ public abstract class Joystick
                         {
                             _buttons[buttonNum - 1].whenPressed(command, interruptible);          
                         }
+
+                        @Override
+                        public void cancelWhenActivated(SwartdogCommand command, boolean interruptible)
+                        {
+                            _buttons[buttonNum - 1].cancelWhenActive(command);
+                        }
                     };
                 }
 

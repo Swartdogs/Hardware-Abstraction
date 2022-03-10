@@ -107,19 +107,12 @@ public abstract class Motor
         };
     }
 
-    public static Motor neo(int canId)
+    public static Motor fromNeo(CANSparkMax motor)
     {
-        CANSparkMax     _motor   = new CANSparkMax(canId, MotorType.kBrushless);
-        RelativeEncoder _encoder = _motor.getEncoder();
-
-        _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
-        _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 100);
-        _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 100);
-        _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 100);
-
         return new Motor()
         {
-    
+            RelativeEncoder _encoder = motor.getEncoder();
+
             private PositionSensor _positionSensor = new PositionSensor()
             {
 
@@ -148,7 +141,7 @@ public abstract class Motor
             @Override
             public double get()
             {
-                return _motor.get();
+                return motor.get();
             }
 
             @Override
@@ -166,23 +159,29 @@ public abstract class Motor
             @Override
             public void set(double speed)
             {
-                _motor.set(speed);
+                motor.set(speed);
             }
         };
     }
 
-    public static Motor neoFlywheel(int canId, double maxMotorRPM)
+    public static Motor neo(int canId)
     {
-        CANSparkMax     _motor   = new CANSparkMax(canId, MotorType.kBrushless);
-        RelativeEncoder _encoder = _motor.getEncoder();
+        CANSparkMax _motor = new CANSparkMax(canId, MotorType.kBrushless);
 
         _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
         _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 100);
         _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 100);
         _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 100);
 
+        return Motor.fromNeo(_motor);
+    }
+
+    public static Motor fromNeoFlywheel(CANSparkMax motor, double maxMotorRPM)
+    {
         return new Motor()
         {
+            private RelativeEncoder _encoder = motor.getEncoder();
+
             private double          _setpoint = 0;
 
             private VelocitySensor _velocitySensor = new VelocitySensor()
@@ -216,32 +215,25 @@ public abstract class Motor
             public void set(double speed)
             {
                 _setpoint = speed;
-                _motor.set(_setpoint / maxMotorRPM);
+                motor.set(_setpoint / maxMotorRPM);
             }
         };
     }
 
-    public static Motor falcon(int canId)
+    public static Motor neoFlywheel(int canId, double maxMotorRPM)
     {
-        TalonFX _motor = new TalonFX(canId);
+        CANSparkMax _motor = new CANSparkMax(canId, MotorType.kBrushless);
 
-        _motor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 0);
+        _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
+        _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 100);
+        _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 100);
+        _motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 100);
 
-        for (StatusFrameEnhanced frame : StatusFrameEnhanced.values())
-        {
-            _motor.setStatusFramePeriod(frame, 1000);
-        }
+        return Motor.fromNeoFlywheel(_motor, maxMotorRPM);
+    }
 
-        for (StatusFrame frame : StatusFrame.values())
-        {
-            _motor.setStatusFramePeriod(frame, 1000);
-        }
-
-        _motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
-        _motor.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20);
-        _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
-        _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 20);
-
+    public static Motor fromFalcon(TalonFX motor)
+    {
         return new Motor()
         {
             private double  _speed;
@@ -251,13 +243,13 @@ public abstract class Motor
                 @Override
                 public double get()
                 {
-                    return _motor.getSensorCollection().getIntegratedSensorPosition();
+                    return motor.getSensorCollection().getIntegratedSensorPosition();
                 }
 
                 @Override
                 public void set(double newPosition)
                 {
-                    _motor.getSensorCollection().setIntegratedSensorPosition(newPosition, 0);
+                    motor.getSensorCollection().setIntegratedSensorPosition(newPosition, 0);
                 }
             };
 
@@ -266,7 +258,7 @@ public abstract class Motor
                 @Override
                 public double get()
                 {
-                    return _motor.getSensorCollection().getIntegratedSensorVelocity();
+                    return motor.getSensorCollection().getIntegratedSensorVelocity();
                 }
             };
 
@@ -292,25 +284,25 @@ public abstract class Motor
             public void set(double speed)
             {
                 _speed = speed;
-                _motor.set(ControlMode.PercentOutput, speed);
+                motor.set(ControlMode.PercentOutput, speed);
             }
         };
     }
 
-    public static Motor falconFlywheel(int canId, double maxMotorRPM)
+    public static Motor falcon(int canId)
     {
         TalonFX _motor = new TalonFX(canId);
-            
+
         _motor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 0);
 
         for (StatusFrameEnhanced frame : StatusFrameEnhanced.values())
         {
-            _motor.setStatusFramePeriod(frame, 1000);
+            _motor.setStatusFramePeriod(frame, 100);
         }
 
         for (StatusFrame frame : StatusFrame.values())
         {
-            _motor.setStatusFramePeriod(frame, 1000);
+            _motor.setStatusFramePeriod(frame, 100);
         }
 
         _motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
@@ -318,7 +310,11 @@ public abstract class Motor
         _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
         _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 20);
 
+        return Motor.fromFalcon(_motor);
+    }
 
+    public static Motor fromFalconFlywheel(TalonFX motor, double maxMotorRPM)
+    {
         return new Motor()
         {
             private double  _setpoint;
@@ -330,7 +326,7 @@ public abstract class Motor
                 @Override
                 public double get()
                 {
-                    return _motor.getSensorCollection().getIntegratedSensorVelocity() * SENSOR_TO_RPM_CONVERSION;
+                    return motor.getSensorCollection().getIntegratedSensorVelocity() * SENSOR_TO_RPM_CONVERSION;
                 }
             };
 
@@ -356,9 +352,33 @@ public abstract class Motor
             public void set(double speed) 
             {
                 _setpoint = speed;
-                _motor.set(ControlMode.PercentOutput, _setpoint / maxMotorRPM);
+                motor.set(ControlMode.PercentOutput, _setpoint / maxMotorRPM);
             }
         };
+    }
+
+    public static Motor falconFlywheel(int canId, double maxMotorRPM)
+    {
+        TalonFX _motor = new TalonFX(canId);
+            
+        _motor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 0);
+
+        for (StatusFrameEnhanced frame : StatusFrameEnhanced.values())
+        {
+            _motor.setStatusFramePeriod(frame, 100);
+        }
+
+        for (StatusFrame frame : StatusFrame.values())
+        {
+            _motor.setStatusFramePeriod(frame, 100);
+        }
+
+        _motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
+        _motor.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20);
+        _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
+        _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 20);
+
+        return Motor.fromFalconFlywheel(_motor, maxMotorRPM);
     }
 
     public static Motor victorSP(int port)
@@ -425,33 +445,14 @@ public abstract class Motor
         };
     }
 
-    public static Motor talonSRX(int canId)
+    public static Motor fromTalonSRX(TalonSRX motor)
     {
-        TalonSRX _motor = new TalonSRX(canId);
-
-        _motor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.None, 0, 0);
-
-        for (StatusFrameEnhanced frame : StatusFrameEnhanced.values())
-        {
-            _motor.setStatusFramePeriod(frame, 1000);
-        }
-
-        for (StatusFrame frame : StatusFrame.values())
-        {
-            _motor.setStatusFramePeriod(frame, 1000);
-        }
-
-        _motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
-        _motor.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20);
-        _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
-        _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 20);
-
         return new Motor()
         {
             @Override
             public double get()
             {
-                return _motor.getMotorOutputPercent();
+                return motor.getMotorOutputPercent();
             }
 
             @Override
@@ -469,8 +470,32 @@ public abstract class Motor
             @Override
             public void set(double speed)
             {
-                _motor.set(ControlMode.PercentOutput, speed);
+                motor.set(ControlMode.PercentOutput, speed);
             }
         };
+    }
+
+    public static Motor talonSRX(int canId)
+    {
+        TalonSRX _motor = new TalonSRX(canId);
+
+        _motor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.None, 0, 0);
+
+        for (StatusFrameEnhanced frame : StatusFrameEnhanced.values())
+        {
+            _motor.setStatusFramePeriod(frame, 100);
+        }
+
+        for (StatusFrame frame : StatusFrame.values())
+        {
+            _motor.setStatusFramePeriod(frame, 100);
+        }
+
+        _motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20);
+        _motor.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20);
+        _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
+        _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 20);
+
+        return Motor.fromTalonSRX(_motor);
     }
 }

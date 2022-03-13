@@ -74,4 +74,18 @@ public abstract class Switch
             }
         };
     }
+
+    public static Switch limitSwitch(int port)
+    {
+        return new Switch() 
+        {
+            private DigitalInput _limitSwitch = new DigitalInput(port);
+
+            @Override
+            public State get()
+            {
+                return _limitSwitch.get() ? State.On : State.Off;
+            }
+        };
+    }
 }

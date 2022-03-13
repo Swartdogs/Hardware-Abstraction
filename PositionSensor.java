@@ -49,7 +49,7 @@ public abstract class PositionSensor
                 switch(axis)
                 {
                     case Yaw:
-                        angle = _navX.getYaw();
+                        angle = _navX.getAngle();
                         break;
 
                     case Pitch:

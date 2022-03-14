@@ -12,8 +12,9 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
-
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
+import frc.robot.abstraction.PositionSensor.MockPositionSensor;
+import frc.robot.abstraction.VelocitySensor.MockVelocitySensor;
 
 @SuppressWarnings("resource")
 public abstract class Motor
@@ -497,5 +498,43 @@ public abstract class Motor
         _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 20);
 
         return Motor.fromTalonSRX(_motor);
+    }
+    
+    public static class MockMotor extends Motor
+    {
+        private double          _speed;
+        private PositionSensor  _positionSensor;
+        private VelocitySensor  _velocitySensor;
+
+        public MockMotor()
+        {
+            _speed          = 0;
+            _positionSensor = new MockPositionSensor();
+            _velocitySensor = new MockVelocitySensor();
+        }
+
+        @Override
+        public double get() 
+        {
+            return _speed;
+        }
+
+        @Override
+        public PositionSensor getPositionSensor() 
+        {
+            return _positionSensor;
+        }
+
+        @Override
+        public VelocitySensor getVelocitySensor() 
+        {
+            return _velocitySensor;
+        }
+
+        @Override
+        public void set(double speed) 
+        {
+            _speed = speed;
+        }
     }
 }

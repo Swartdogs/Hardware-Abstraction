@@ -88,4 +88,30 @@ public abstract class Switch
             }
         };
     }
+
+    public static class MockSwitch extends Switch 
+    {
+        private State _state;
+    
+        public MockSwitch() 
+        {
+            this(State.Off);
+        }
+    
+        public MockSwitch(State initialState) 
+        {
+            set(initialState);
+        }
+    
+        @Override
+        public State get() 
+        {
+            return _state;
+        }
+    
+        public void set(State state) 
+        {
+            _state = state;
+        }
+    }    
 }

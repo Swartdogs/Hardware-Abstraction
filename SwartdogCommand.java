@@ -26,6 +26,11 @@ public abstract class SwartdogCommand implements Command
 
     public static SwartdogCommand run(Runnable runnable)
     {
+        return run(runnable, false);
+    }
+
+    public static SwartdogCommand run(Runnable runnable, boolean runsWhenDisabled)
+    {
         return new SwartdogCommand()
         {
             @Override
@@ -38,6 +43,12 @@ public abstract class SwartdogCommand implements Command
             public boolean isFinished()
             {
                 return true;
+            }
+
+            @Override
+            public boolean runsWhenDisabled()
+            {
+                return runsWhenDisabled;
             }
         };
     }

@@ -3,9 +3,11 @@ package frc.robot.abstraction;
 import java.util.HashSet;
 import java.util.Map;
 
+import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
@@ -33,6 +35,8 @@ public abstract class ShuffleboardTab
     public abstract void            addAutonomous(String name, SwartdogCommand autonomous);
     public abstract void            addDefaultAutonomous(String name, SwartdogCommand autonomous);
     public abstract SwartdogCommand getSelectedAutonomous();
+    public abstract void            addCamera(int x, int y, int w, int h, VideoSource videoSource, Map<String, Object> properties);
+    public abstract void            setVideoSource(VideoSource videoSource);
 
     public NetworkTableBoolean addBooleanWidget(String networkTableId, boolean defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
     {
@@ -76,6 +80,7 @@ public abstract class ShuffleboardTab
         {
             private edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab _tab         = edu.wpi.first.wpilibj.shuffleboard.Shuffleboard.getTab(tabName);
             private SendableChooser<SwartdogCommand>                   _autoChooser = null;
+            private ComplexWidget                                      _camera      = null;
 
             @Override
             protected NetworkTableBoolean addBoolean(String networkTableId, boolean defaultValue, int x, int y, int w, int h, BuiltInWidgets widget, Map<String, Object> properties)
@@ -299,6 +304,21 @@ public abstract class ShuffleboardTab
                 }
 
                 return sbw.getEntry();
+            }
+
+            public void addCamera(int x, int y, int w, int h, VideoSource videoSource, Map<String, Object> properties)
+            {
+                _camera = _tab.add(videoSource).withPosition(x, y).withSize(w, h);
+
+                if (properties != null && !properties.isEmpty())
+                {
+                    _camera = _camera.withProperties(properties);
+                }
+            }
+
+            public void setVideoSource(VideoSource videoSource)
+            {
+                
             }
         };
     }

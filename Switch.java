@@ -2,7 +2,9 @@ package frc.robot.abstraction;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import frc.robot.abstraction.Enumerations.State;
 
 public abstract class Switch
@@ -88,8 +90,45 @@ public abstract class Switch
             }
         };
     }
-
-    public static class MockSwitch extends Switch 
+    
+    public static abstract class SettableSwitch extends Switch
+    {
+        public abstract void set(State state);
+        
+        public static SettableSwitch compressor(int moduleId, PneumaticsModuleType moduleType)
+        {
+            return new SettableSwitch() 
+            {
+                private Compressor _compressor = new Compressor(moduleId, moduleType);
+                
+                @Override
+                public State get()
+                {
+                    return _compressor.enabled() ? State.On : State.Off;
+                }
+                
+                @Override
+                public void set(State state)
+                {
+                    switch (state)
+                    {
+                        case On:
+                        _compressor.enableDigital();
+                        break;
+                        
+                        case Off:
+                        _compressor.disable();
+                        break;
+                        
+                        default:
+                        break;
+                    }
+                }
+            };
+        }
+    }
+    
+    public static class MockSwitch extends SettableSwitch 
     {
         private State _state;
     
@@ -109,9 +148,10 @@ public abstract class Switch
             return _state;
         }
     
+        @Override
         public void set(State state) 
         {
             _state = state;
         }
-    }    
+    }
 }

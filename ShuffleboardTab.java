@@ -87,20 +87,7 @@ public abstract class ShuffleboardTab
             {
                 NetworkTableEntry entry = createWidget(_tab, networkTableId, defaultValue, x, y, w, h, widget, properties);
 
-                return new NetworkTableBoolean()
-                {
-                    @Override
-                    public boolean get()
-                    {
-                        return entry.getBoolean(false);
-                    }
-
-                    @Override
-                    public void set(boolean value)
-                    {
-                        entry.setBoolean(value);
-                    }
-                };
+                return NetworkTableBoolean.fromEntry(entry);
             }
 
             @Override
@@ -108,20 +95,7 @@ public abstract class ShuffleboardTab
             {
                 NetworkTableEntry entry = createWidget(_tab, networkTableId, defaultValue, x, y, w, h, widget, properties);
 
-                return new NetworkTableDouble()
-                {
-                    @Override
-                    public double get()
-                    {
-                        return entry.getDouble(0);
-                    }
-
-                    @Override
-                    public void set(double value)
-                    {
-                        entry.setDouble(value);
-                    }
-                };
+                return NetworkTableDouble.fromEntry(entry);
             }
 
             @Override
@@ -129,20 +103,7 @@ public abstract class ShuffleboardTab
             {
                 NetworkTableEntry entry = createWidget(_tab, networkTableId, defaultValue, x, y, w, h, widget, properties);
 
-                return new NetworkTableString()
-                {
-                    @Override
-                    public String get()
-                    {
-                        return entry.getString("");
-                    }
-
-                    @Override
-                    public void set(String value)
-                    {
-                        entry.setString(value);
-                    }
-                };
+                return NetworkTableString.fromEntry(entry);
             }
         
             @Override
@@ -204,20 +165,7 @@ public abstract class ShuffleboardTab
                     {
                         NetworkTableEntry entry = createWidget(sbl, networkTableId, defaultValue, widget, properties);
 
-                        return new NetworkTableBoolean()
-                        {
-                            @Override
-                            public boolean get()
-                            {
-                                return entry.getBoolean(false);
-                            }
-
-                            @Override
-                            public void set(boolean value)
-                            {
-                                entry.setBoolean(value);
-                            }
-                        };
+                        return NetworkTableBoolean.fromEntry(entry);
                     }
 
                     @Override
@@ -225,20 +173,7 @@ public abstract class ShuffleboardTab
                     {
                         NetworkTableEntry entry = createWidget(sbl, networkTableId, defaultValue, widget, properties);
 
-                        return new NetworkTableDouble()
-                        {
-                            @Override
-                            public double get()
-                            {
-                                return entry.getDouble(0);
-                            }
-
-                            @Override
-                            public void set(double value)
-                            {
-                                entry.setDouble(value);
-                            }
-                        };
+                        return NetworkTableDouble.fromEntry(entry);
                     }
 
                     @Override
@@ -246,20 +181,7 @@ public abstract class ShuffleboardTab
                     {
                         NetworkTableEntry entry = createWidget(sbl, networkTableId, defaultValue, widget, properties);
 
-                        return new NetworkTableString()
-                        {
-                            @Override
-                            public String get()
-                            {
-                                return entry.getString("");
-                            }
-
-                            @Override
-                            public void set(String value)
-                            {
-                                entry.setString(value);
-                            }
-                        };
+                        return NetworkTableString.fromEntry(entry);
                     }
 
                     @Override

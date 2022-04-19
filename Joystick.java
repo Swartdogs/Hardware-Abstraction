@@ -5,15 +5,10 @@ import frc.robot.abstraction.Enumerations.State;
 
 public abstract class Joystick
 {
-    protected double  _xDeadband;
-    protected double  _yDeadband;
-    protected double  _zDeadband;
-    protected double  _throttleDeadband;
-
-    protected boolean _squareX;
-    protected boolean _squareY;
-    protected boolean _squareZ;
-    protected boolean _squareThrottle;
+    protected JoystickAxis _x        = new JoystickAxis();
+    protected JoystickAxis _y        = new JoystickAxis();
+    protected JoystickAxis _z        = new JoystickAxis();
+    protected JoystickAxis _throttle = new JoystickAxis();
 
     public abstract double getX();
     public abstract double getY();
@@ -23,71 +18,58 @@ public abstract class Joystick
     public abstract Switch getButton(int buttonNum);
     public abstract int    getButtonCount();
 
-    public void setXDeadband(double xDeadband)
+    public JoystickAxis getXAxis()
     {
-        _xDeadband = xDeadband;
+        return _x;
     }
 
-    public void setYDeadband(double yDeadband)
+    public JoystickAxis getYAxis()
     {
-        _yDeadband = yDeadband;
+        return _y;
     }
 
-    public void setZDeadband(double zDeadband)
+    public JoystickAxis getZAxis()
     {
-        _zDeadband = zDeadband;
+        return _z;
     }
 
-    public void setThrottleDeadband(double throttleDeadband)
+    public JoystickAxis getThrottleAxis()
     {
-        _throttleDeadband = throttleDeadband;
+        return _throttle;
     }
-
-    public void setSquareX(boolean squareX)
+    public static class JoystickAxis
     {
-        _squareX = squareX;
-    }
+        private double _deadband;
+        private double _motionThreshold;
+        private double _exponent = 1;
 
-    public void setSquareY(boolean squareY)
-    {
-        _squareY = squareY;
-    }
-
-    public void setSquareZ(boolean squareZ)
-    {
-        _squareZ = squareZ;
-    }
-
-    public void setSquareThottle(boolean squareThrottle)
-    {
-        _squareThrottle = squareThrottle;
-    }
-
-    protected double applyDeadband(double raw, double deadband, boolean squareInputs)
-    {
-        double modified = 0.0;
-
-        if (raw < -deadband)
+        public void setDeadband(double deadband)
         {
-            modified = ((raw + 1) / (1 - deadband)) - 1;
+            _deadband = deadband;
         }
 
-        else if (raw > deadband)
+        public void setMotionThreshold(double motionThreshold)
         {
-            modified = ((raw - 1) / (1 - deadband)) + 1;
+            _motionThreshold = motionThreshold;
         }
 
-        else
+        public void setExponent(double exponent)
         {
-            modified = 0.0;
+            _exponent = exponent;
         }
 
-        if (squareInputs)
+        public double applyDeadband(double raw)
         {
-            modified *= Math.abs(modified);
-        }
+            double inputAbs = Math.abs(raw);
 
-        return modified;
+            double withDeadband = (inputAbs < _deadband) ? 0 : (inputAbs - _deadband) / (1 - _deadband);
+
+            double withExponent = Math.pow(_exponent, withDeadband - 1) * withDeadband;
+
+            double withMotionThreshold = (withExponent * (1 - _motionThreshold)) + (Math.signum(withExponent) * _motionThreshold);
+
+            return withMotionThreshold * Math.signum(raw);
+        }
     }
 
     public static Joystick joystick(int joystickId)
@@ -102,25 +84,25 @@ public abstract class Joystick
             @Override
             public double getX()
             {
-                return applyDeadband(_joystick.getX(), _xDeadband, _squareX);
+                return _x.applyDeadband(_joystick.getX());
             }
 
             @Override
             public double getY()
             {
-                return applyDeadband(-_joystick.getY(), _yDeadband, _squareY);
+                return _y.applyDeadband(-_joystick.getY());
             }
 
             @Override
             public double getZ()
             {
-                return applyDeadband(_joystick.getZ(), _zDeadband, _squareZ);
+                return _z.applyDeadband(_joystick.getZ());
             }
 
             @Override
             public double getThrottle()
             {
-                return applyDeadband(_joystick.getRawAxis(3), _throttleDeadband, _squareThrottle);
+                return _throttle.applyDeadband(_joystick.getRawAxis(3));
             }
 
             @Override

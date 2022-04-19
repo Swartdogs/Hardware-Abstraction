@@ -314,27 +314,29 @@ public abstract class Motor
         return Motor.fromFalcon(_motor);
     }
 
-    public static Motor fromFalconFlywheel(TalonFX motor, double maxMotorRPM)
+    public static Motor fromFalconFlywheel(TalonFX motor, double scalingFactor)
     {
         return new Motor()
         {
-            private double  _setpoint;
+            private double _scalingFactor        = scalingFactor;
+            private double _inverseScalingFactor = 1.0 / scalingFactor;
 
-            private final double SENSOR_TO_RPM_CONVERSION = 600.0 / 2048.0;
+            private final double RPM_TO_SENSOR_CONVERSION = 256.0 / 75.0;
+            private final double SENSOR_TO_RPM_CONVERSION =   1.0 / RPM_TO_SENSOR_CONVERSION;
 
             private VelocitySensor _velocitySensor = new VelocitySensor()
             {
                 @Override
                 public double get()
                 {
-                    return motor.getSensorCollection().getIntegratedSensorVelocity() * SENSOR_TO_RPM_CONVERSION;
+                    return motor.getSensorCollection().getIntegratedSensorVelocity() * SENSOR_TO_RPM_CONVERSION * _inverseScalingFactor;
                 }
             };
 
             @Override
             public double get() 
             {
-                return _setpoint;
+                return motor.getClosedLoopTarget() * SENSOR_TO_RPM_CONVERSION * _inverseScalingFactor;
             }
 
             @Override
@@ -352,13 +354,19 @@ public abstract class Motor
             @Override
             public void set(double speed) 
             {
-                _setpoint = speed;
-                motor.set(ControlMode.PercentOutput, _setpoint / maxMotorRPM);
+                if (speed == 0)
+                {
+                    motor.set(ControlMode.PercentOutput, 0);
+                }
+                else
+                {
+                    motor.set(ControlMode.Velocity, speed * RPM_TO_SENSOR_CONVERSION * _scalingFactor);
+                }
             }
         };
     }
 
-    public static Motor falconFlywheel(int canId, double maxMotorRPM)
+    public static Motor falconFlywheel(int canId, double scalingFactor)
     {
         TalonFX _motor = new TalonFX(canId);
             
@@ -379,7 +387,7 @@ public abstract class Motor
         _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);
         _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 20);
 
-        return Motor.fromFalconFlywheel(_motor, maxMotorRPM);
+        return Motor.fromFalconFlywheel(_motor, scalingFactor);
     }
 
     public static Motor victorSP(int port)

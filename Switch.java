@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.Relay.Value;
 import frc.robot.abstraction.Enumerations.State;
 
 public abstract class Switch
@@ -122,6 +124,60 @@ public abstract class Switch
                         
                         default:
                         break;
+                    }
+                }
+            };
+        }
+
+        public static SettableSwitch relay(int port)
+        {
+            return new SettableSwitch() 
+            {
+                private Relay _relay = new Relay(port, Relay.Direction.kBoth);
+                
+                @Override
+                public State get()
+                {
+                    State state;
+
+                    switch (_relay.get())
+                    {
+                        case kOn:
+                        case kForward:
+                            state = State.On;
+                            break;
+
+                        case kReverse:
+                            state = State.Reverse;
+                            break;
+
+                        default:
+                            state = State.Off;
+                            break;
+                    }
+
+                    return state;
+                }
+                
+                @Override
+                public void set(State state)
+                {
+                    switch (state)
+                    {
+                        case On:
+                            _relay.set(Value.kForward);
+                            break;
+
+                        case Reverse:
+                            _relay.set(Value.kReverse);
+                            break;
+                        
+                        case Off:
+                            _relay.set(Value.kOff);
+                            break;
+                        
+                        default:
+                            break;
                     }
                 }
             };

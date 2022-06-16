@@ -12,6 +12,8 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
+
+import edu.wpi.first.wpilibj.motorcontrol.Jaguar;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 import frc.robot.abstraction.PositionSensor.MockPositionSensor;
 import frc.robot.abstraction.VelocitySensor.MockVelocitySensor;
@@ -498,6 +500,41 @@ public abstract class Motor
         _motor.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 20);
 
         return Motor.fromTalonSRX(_motor);
+    }
+
+    public static Motor fromJaguar(Jaguar motor)
+    {
+        return new Motor()
+        {
+            @Override
+            public double get()
+            {
+                return motor.get();
+            }
+
+            @Override
+            public PositionSensor getPositionSensor()
+            {
+                return null;
+            }
+
+            @Override
+            public VelocitySensor getVelocitySensor()
+            {
+                return null;
+            }
+
+            @Override
+            public void set(double speed)
+            {
+                motor.set(speed);
+            }
+        };
+    }
+
+    public static Motor jaguar(int pwmPort)
+    {
+        return Motor.fromJaguar(new Jaguar(pwmPort));
     }
     
     public static class MockMotor extends Motor

@@ -336,7 +336,14 @@ public abstract class Motor
             @Override
             public double get() 
             {
-                return motor.getClosedLoopTarget() * SENSOR_TO_RPM_CONVERSION * _inverseScalingFactor;
+                double value = 0;
+
+                if (motor.getControlMode() == ControlMode.Velocity)
+                {
+                    value = motor.getClosedLoopTarget() * SENSOR_TO_RPM_CONVERSION * _inverseScalingFactor;
+                }
+
+                return value;
             }
 
             @Override

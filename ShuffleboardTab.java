@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public abstract class ShuffleboardTab
 {
@@ -32,9 +33,9 @@ public abstract class ShuffleboardTab
     protected abstract ShuffleboardLayout  addLayout(String layoutName, BuiltInLayouts layout, int x, int y, int w, int h, Map<String, Object> properties);
 
     public abstract void            addAutonomousChooser(int x, int y, int w, int h, BuiltInWidgets widget);
-    public abstract void            addAutonomous(String name, SwartdogCommand autonomous);
-    public abstract void            addDefaultAutonomous(String name, SwartdogCommand autonomous);
-    public abstract SwartdogCommand getSelectedAutonomous();
+    public abstract void            addAutonomous(String name, CommandBase autonomous);
+    public abstract void            addDefaultAutonomous(String name, CommandBase autonomous);
+    public abstract CommandBase     getSelectedAutonomous();
     public abstract void            addCamera(int x, int y, int w, int h, VideoSource videoSource, Map<String, Object> properties);
     public abstract void            setVideoSource(VideoSource videoSource);
 
@@ -79,7 +80,7 @@ public abstract class ShuffleboardTab
         return new ShuffleboardTab()
         {
             private edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab _tab         = edu.wpi.first.wpilibj.shuffleboard.Shuffleboard.getTab(tabName);
-            private SendableChooser<SwartdogCommand>                   _autoChooser = null;
+            private SendableChooser<CommandBase>                   _autoChooser = null;
             private ComplexWidget                                      _camera      = null;
 
             @Override
@@ -119,14 +120,14 @@ public abstract class ShuffleboardTab
             {
                 if (_autoChooser == null)
                 {
-                    _autoChooser = new SendableChooser<SwartdogCommand>();
+                    _autoChooser = new SendableChooser<CommandBase>();
 
                     _tab.add("Autonomous Selector", _autoChooser).withPosition(x, y).withSize(w, h).withWidget(widget);
                 }
             }
 
             @Override
-            public void addAutonomous(String name, SwartdogCommand autonomous)
+            public void addAutonomous(String name, CommandBase autonomous)
             {
                 if (_autoChooser != null)
                 {
@@ -135,7 +136,7 @@ public abstract class ShuffleboardTab
             }
 
             @Override
-            public void addDefaultAutonomous(String name, SwartdogCommand autonomous)
+            public void addDefaultAutonomous(String name, CommandBase autonomous)
             {
                 if (_autoChooser != null)
                 {
@@ -144,9 +145,9 @@ public abstract class ShuffleboardTab
             }
 
             @Override
-            public SwartdogCommand getSelectedAutonomous()
+            public CommandBase getSelectedAutonomous()
             {
-                SwartdogCommand auto = null;
+                CommandBase auto = null;
 
                 if (_autoChooser != null)
                 {

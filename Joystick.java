@@ -1,5 +1,6 @@
 package frc.robot.abstraction;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.abstraction.Enumerations.State;
 
@@ -125,25 +126,25 @@ public abstract class Joystick
                         }
 
                         @Override
-                        public void whenDeactivated(SwartdogCommand command, boolean interruptible)
+                        public void whenDeactivated(CommandBase command, boolean interruptible)
                         {
                             _buttons[buttonNum - 1].whenReleased(command, interruptible);
                         }
 
                         @Override
-                        public void whileActive(SwartdogCommand command, boolean interruptible)
+                        public void whileActive(CommandBase command, boolean interruptible)
                         {
                             _buttons[buttonNum - 1].whenHeld(command, interruptible);       
                         }
 
                         @Override
-                        public void whenActivated(SwartdogCommand command, boolean interruptible)
+                        public void whenActivated(CommandBase command, boolean interruptible)
                         {
                             _buttons[buttonNum - 1].whenPressed(command, interruptible);          
                         }
 
                         @Override
-                        public void cancelWhenActivated(SwartdogCommand command, boolean interruptible)
+                        public void cancelWhenActivated(CommandBase command, boolean interruptible)
                         {
                             _buttons[buttonNum - 1].cancelWhenActive(command);
                         }

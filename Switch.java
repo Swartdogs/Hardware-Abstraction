@@ -7,48 +7,49 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Relay.Value;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.abstraction.Enumerations.State;
 
 public abstract class Switch
 {
     public abstract State get();
 
-    public void whenDeactivated(SwartdogCommand command)
+    public void whenDeactivated(CommandBase command)
     {
         whenDeactivated(command, true);
     }
 
-    public void whenDeactivated(SwartdogCommand command, boolean interruptible)
+    public void whenDeactivated(CommandBase command, boolean interruptible)
     {
 
     }
 
-    public void whileActive(SwartdogCommand command)
+    public void whileActive(CommandBase command)
     {
         whileActive(command, true);
     }
 
-    public void whileActive(SwartdogCommand command, boolean interruptible)
+    public void whileActive(CommandBase command, boolean interruptible)
     {
 
     }
 
-    public void whenActivated(SwartdogCommand command)
+    public void whenActivated(CommandBase command)
     {
         whenActivated(command, true);
     }
 
-    public void whenActivated(SwartdogCommand command, boolean interruptible)
+    public void whenActivated(CommandBase command, boolean interruptible)
     {
 
     }
 
-    public void cancelWhenActivated(SwartdogCommand command)
+    public void cancelWhenActivated(CommandBase command)
     {
         cancelWhenActivated(command, true);
     }
 
-    public void cancelWhenActivated(SwartdogCommand command, boolean interruptible)
+    public void cancelWhenActivated(CommandBase command, boolean interruptible)
     {
 
     }
